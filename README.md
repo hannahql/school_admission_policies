@@ -1,6 +1,6 @@
 # School Admission Policies 
 
-This repository implements simulations for the paper "Dropping Standardized Testing for Admissions Trades Off Information and Access". 
+This repository implements simulations for the paper [Dropping Standardized Testing for Admissions Trades Off Information and Access](https://arxiv.org/abs/2010.04396).
 
 ## Overview
 
