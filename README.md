@@ -1,6 +1,6 @@
-# School Admission Policies Research Framework
+# School Admission Policies 
 
-This repository implements simulations for studying school admission policies, with a particular focus on analyzing the impact of different admission strategies, costs, and barriers across student groups.
+This repository implements simulations for the paper "Dropping Standardized Testing for Admissions Trades Off Information and Access". 
 
 ## Overview
 
