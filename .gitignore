@@ -1,0 +1,21 @@
+# Python basics
+__pycache__/
+*.py[cod]
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Data files
+*.csv
+*.xlsx
+*.xls
+*.db
+*.sqlite3
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# macOS
+.DS_Store 
