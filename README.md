@@ -9,22 +9,6 @@ This codebase implements a simulation framework for studying school admission po
 - Multiple school admissions with market dynamics
 - Analysis of admission barriers (e.g., test-taking) under settings where students are strategic and non-strategic
 
-## Project Structure
-
-```
-.
-├── data/                   # Data directory for input datasets
-├── simulations/           # Core simulation code
-│   ├── pipeline.py        # Main simulation pipeline
-│   ├── pipeline_use_calibrated_data_2025.ipynb  # Notebook for calibrated simulations
-│   ├── settings.py        # Global simulation settings
-│   ├── students/          # Student-related modules
-│   ├── schools/           # School-related modules
-│   └── evaluations/       # Evaluation metrics and analysis
-├── generic/               # Utility functions and helpers
-└── README.md             # This file
-```
-
 ## Configuration Parameters
 
 The simulation framework is configurable through various parameters:
