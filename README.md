@@ -25,6 +25,34 @@ This codebase implements a simulation framework for studying school admission po
 └── README.md             # This file
 ```
 
+## Data Requirements
+
+To run the simulations using real data, you will need to obtain the Texas Higher Education Opportunity Project (THEOP) dataset. Follow these steps:
+
+1. Obtain the data from the THEOP website [https://theop.princeton.edu/](https://theop.princeton.edu/)
+2. Once you have the data, create a `data/theop/` directory in the project root and organize the THEOP files as follows:
+
+The code expects STATA data files (.dta) for each university's applications and transcripts in this format:
+```
+data/theop/
+├── theop_au_applications.dta    # UT Austin applications
+├── theop_au_transcripts.dta     # UT Austin transcripts
+├── theop_amk_applications.dta   # Texas A&M Kingsville applications
+├── theop_amk_transcripts.dta    # Texas A&M Kingsville transcripts
+└── [similar files for other universities]
+```
+
+The dataset also includes files for the following universities (institution codes):
+- Texas A&M (am)
+- Texas A&M Kingsville (amk)
+- UT Arlington (ar)
+- UT Austin (au)
+- UT Pan American (pa)
+- Texas Tech (tt)
+- Rice (ri)
+- Southern Methodist University (sm)
+
+
 ## Configuration Parameters
 
 The simulation framework is configurable through various parameters:
