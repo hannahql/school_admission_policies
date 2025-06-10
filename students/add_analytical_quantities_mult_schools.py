@@ -54,10 +54,3 @@ def check_band_conditions(students_df, schools_df, parameters):
         parameters=parameters
     )
     
-    
-def theory_recommended_drop_decision(schools_df, parameters):
-    pass
-    
-def add_theory_recommended_drop_decision_to_schools_df(schools_df, parameters):
-    pass
-    

@@ -12,8 +12,7 @@ import pipeline
 
 
     
-#TODO - Saving and reading in data is a mess, since pandas changes the type of the data. 
-# Should write function to fix this.
+#Note - Saving and reading in data is a mess, since pandas changes the type of the data. 
 def run_cost_model_different_costs(parameters, costs):
     parameters["SIMULATION_TYPE"] = "SINGLE_SCHOOL_COST_MODEL"
     params_by_cost = {}
