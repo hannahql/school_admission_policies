@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH -J msrev                         # Job name
+#SBATCH -o /home/ng343/slurm_output/comp_%j.out                  # output file (%j expands to jobID)
+#SBATCH -e /home/ng343/slurm_output/comp_%j.err                  # error log file (%j expands to jobID)
+#SBATCH --mail-type=ALL                      # Request status by email
+#SBATCH --mail-user=ng343@cornell.edu.       # Email address to send results to.
+#SBATCH -N 1                                 # Total number of nodes requested
+#SBATCH -n 20                                 # Total number of cores requested
+#SBATCH --get-user-env                       # retrieve the users login environment
+#SBATCH --mem=96000                           # server memory requested (per node)
+#SBATCH -t 48:00:00                           # Time limit (hh:mm:ss)
+
+#SBATCH --partition=garg
+#SBATCH --nodelist=garg-cpu-01
+
+
+
+# #SBATCH --partition=default_partition      #garg              # Request partition
+
+
+# source /share/apps/anaconda3/2020.11/etc/profile.d/conda.sh
+
+source /share/apps/software/anaconda3/etc/profile.d/conda.sh
+conda activate /share/garg/conda_virtualenvs/orie5355comp25
+
+python pipeline_use_paperfigures_two_school_strategic.py
