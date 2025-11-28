@@ -40,9 +40,12 @@ def filter_results_by_target_values(results_df,
     # Filter the results DataFrame based on target values, excluding the feature to vary
     filtered_results = results_df.copy()
     #temp_sub_results = sub_sub_results.copy()
+    print(filtered_results.shape)
     for feature, value in target_values.items():
-        filtered_results = filtered_results[filtered_results[feature] == value]
+        # filtered_results = filtered_results[filtered_results[feature] == value]
+        filtered_results = filtered_results.query(f"abs({feature} - @value) < 1e-3")
         #temp_sub_results = temp_sub_results[temp_sub_results[feature] == value]
+        print(feature, value, filtered_results.shape)
 
     if feature_to_vary is not None:
         # # Calculate mean sub-sub results for the feature to vary
@@ -91,14 +94,38 @@ def filter_results_by_target_values(results_df,
         )
         temp_df_b = temp_df_b.reset_index().drop(columns=["level_0"])
         
-        temp_df_a = temp_df_a.append(
-                               pd.Series({0:sub_sub_results['avgadmittedskill_school_a'].mean(),
-                                      "Policy":"SUB_SUB"
-                                      }, name=len(temp_df_a)))
-        temp_df_b = temp_df_b.append(pd.Series({0:sub_sub_results['avgadmittedskill_school_b'].mean(),
-                                        "Policy":"SUB_SUB"
-                                        }, name=len(temp_df_b)))
-                                     
+        # temp_df_a = temp_df_a.append(
+        #                        pd.Series({0:sub_sub_results['avgadmittedskill_school_a'].mean(),
+        #                               "Policy":"SUB_SUB"
+        #                               }, name=len(temp_df_a)))
+        # temp_df_b = temp_df_b.append(pd.Series({0:sub_sub_results['avgadmittedskill_school_b'].mean(),
+        #                                 "Policy":"SUB_SUB"
+        #                                 }, name=len(temp_df_b)))
+                   
+    if sub_sub_results is not None:                  
+        temp_df_a = pd.concat(
+        [
+            temp_df_a,
+            pd.DataFrame([{
+                0: sub_sub_results['avgadmittedskill_school_a'].mean(),
+                "Policy": "SUB_SUB"
+            }])
+        ],
+        ignore_index=True
+        )
+
+        temp_df_b = pd.concat(
+            [
+                temp_df_b,
+                pd.DataFrame([{
+                    0: sub_sub_results['avgadmittedskill_school_b'].mean(),
+                    "Policy": "SUB_SUB"
+                }])
+            ],
+            ignore_index=True
+        )
+
+    
     
     return temp_df_a, temp_df_b#, temp_sub_results
 
