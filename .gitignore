@@ -7,7 +7,6 @@ __pycache__/
 */.ipynb_checkpoints/*
 
 # Data files
-*.csv
 *.xlsx
 *.xls
 *.db
@@ -24,5 +23,5 @@ __pycache__/
 *.ipynb_checkpoints/
 *__pycache__/*
 */__pycache__/*
-*.csv
 plots/*
+*.csv
