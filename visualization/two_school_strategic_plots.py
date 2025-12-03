@@ -31,6 +31,7 @@ def read_saved_inputs(index, output_directory):
     return parameters_of_interest, full_parameters, students_df, schools_df
 
 
+
 def filter_results_by_target_values(results_df, 
                                     sub_sub_results, 
                                     target_values,
@@ -40,13 +41,24 @@ def filter_results_by_target_values(results_df,
     # Filter the results DataFrame based on target values, excluding the feature to vary
     filtered_results = results_df.copy()
     #temp_sub_results = sub_sub_results.copy()
-    print(filtered_results.shape)
+    #print(filtered_results.shape)
     for feature, value in target_values.items():
         # filtered_results = filtered_results[filtered_results[feature] == value]
         filtered_results = filtered_results.query(f"abs({feature} - @value) < 1e-3")
         #temp_sub_results = temp_sub_results[temp_sub_results[feature] == value]
-        print(feature, value, filtered_results.shape)
+       # print(feature, value, filtered_results.shape)
 
+    # Take the mean in case there are multiple rows with the same parameter values# Take the mean in case there are multiple rows with the same parameter values
+    group_cols = [col for col in filtered_results.columns 
+                  if col not in ['avgadmittedskill_school_a', 
+                                 'avgadmittedskill_school_b',
+                                 'Index',
+                                 'STUDENT_UTILITY']]
+    filtered_results = (filtered_results
+                        .groupby(group_cols)
+                        .mean()
+                        .reset_index()
+                        )
     if feature_to_vary is not None:
         # # Calculate mean sub-sub results for the feature to vary
         # temp_sub_results = sub_sub_results.groupby(feature_to_vary).mean()
@@ -128,6 +140,7 @@ def filter_results_by_target_values(results_df,
     
     
     return temp_df_a, temp_df_b#, temp_sub_results
+
 
 def plot_avg_admitted_skill_by_policy(
     results_df, 
@@ -211,3 +224,106 @@ def plot_avg_admitted_skill_by_policy(
     plt.tight_layout()
     #plt.show()
     sns.despine()
+    
+    
+def plot_avg_admitted_skill_by_policy_heatmap(
+    results_df, 
+    sub_sub_results, 
+    feature_to_vary, 
+    target_values,
+    fig_directory,
+):
+    """
+    Plots heatmap of the average admitted skill by policy, 
+    varying a specified feature, and holding other features constant.
+    """
+    
+    results_a, results_b = filter_results_by_target_values(
+                                            results_df=results_df,
+                                            sub_sub_results=sub_sub_results,
+                                            feature_to_vary=feature_to_vary,
+                                            target_values=target_values,
+                                            )
+    
+    results_a = results_a[results_a["Policy"] != "SUB_SUB_test"]
+    results_b = results_b[results_b["Policy"] != "SUB_SUB_test"]
+    
+    
+    # Extract the action parts from the policy names
+    results_a['Action_A'] = results_a['Policy'].apply(lambda x: x.split('_')[0])
+    results_a['Action_B'] = results_a['Policy'].apply(lambda x: x.split('_')[1])
+    matrix_a = results_a.pivot(index='Action_A', columns='Action_B',
+                            values=0)
+
+    # Extract the action parts from the policy names
+    results_b['Action_A'] = results_b['Policy'].apply(lambda x: x.split('_')[0])
+    results_b['Action_B'] = results_b['Policy'].apply(lambda x: x.split('_')[1])
+    matrix_b = results_b.pivot(index='Action_A', columns='Action_B',
+                            values=0)
+
+    
+        # Create heatmap of matrix_a - avg admitted skill of school a
+    # Create a figure with two subplots side by side
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+
+    # Plot heatmap of matrix_a
+    epsilon = 0.2
+    vmin = min(matrix_a.min().min(), matrix_b.min().min()) - epsilon
+    vmax = max(matrix_a.max().max(), matrix_b.max().max()) + epsilon
+    sns.heatmap(matrix_a, annot=True, fmt='.3f', ax=ax1, vmin=vmin, vmax=vmax, 
+                cmap=sns.cm.rocket_r, annot_kws={"size": 18}) 
+    ax1.set_title("Average admitted skill: $J_1$", fontsize=18, pad=20)
+    ax1.xaxis.set_label_position('top')
+    ax1.set_xlabel("$J_2$ policy", fontsize=18)
+    ax1.xaxis.tick_top()
+    ax1.set_ylabel("$J_1$ policy", fontsize=18)
+    ax1.tick_params(axis='both', which='major', labelsize=18)
+
+
+
+    # Plot heatmap of matrix_b - avg admitted skill of school b
+    mask = matrix_b.isnull()
+    sns.heatmap(matrix_b, annot=True, fmt='.3f', ax=ax2, vmin=vmin, vmax=vmax,
+                cmap=sns.cm.rocket_r, annot_kws={"size": 18}, mask=mask
+                )
+    # Get the colorbars from both heatmaps
+    colorbar1 = ax1.collections[0].colorbar
+    colorbar2 = ax2.collections[0].colorbar
+
+    # Set font size for colorbar tick labels
+    colorbar1.ax.tick_params(labelsize=14)
+    colorbar2.ax.tick_params(labelsize=14)
+
+
+
+
+    # # Customize the appearance of NA cells
+    # Create a mask for NA values
+    sns.heatmap(matrix_b, mask=~mask, cmap=['grey'], cbar=False, ax=ax2)
+    # Annotate NaN cells with "NA"
+    for i in range(matrix_b.shape[0]):
+        for j in range(matrix_b.shape[1]):
+            if mask.iloc[i, j]:
+                ax2.text(j + 0.5, i + 0.5, 'NA', ha='center', va='center', color='black', fontsize=18)
+
+    ax2.set_title("Average admitted skill: $J_2$", fontsize=18, pad=20)
+    ax2.xaxis.set_label_position('top')
+    ax2.xaxis.tick_top()
+    ax2.set_xlabel("$J_2$ policy", fontsize=18)
+    ax2.set_ylabel("$J_1$ policy", fontsize=18)
+    ax2.tick_params(axis='both', which='major', labelsize=18)
+
+    plt.subplots_adjust(wspace=10)
+
+    plt.tight_layout()
+    # INSERT_YOUR_CODE
+    # Parse the names and values in target_values and append to the figure name
+    if 'target_values' in locals() and hasattr(target_values, 'items'):
+        target_kv_str = "_".join(f"{k}={v}" for k, v in target_values.items())
+    else:
+        target_kv_str = "novals"
+    plt.savefig(
+        os.path.join(fig_directory, f"avg_skill_heatmap_{target_kv_str}.png"),
+        dpi=300
+    )
+    return
