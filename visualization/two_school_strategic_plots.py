@@ -35,7 +35,8 @@ def read_saved_inputs(index, output_directory):
 def filter_results_by_target_values(results_df, 
                                     sub_sub_results, 
                                     target_values,
-                                    feature_to_vary = None
+                                    feature_to_vary = None,
+                                    return_mean_results=True, #if False, return individual rows
                                     ):
         
     # Filter the results DataFrame based on target values, excluding the feature to vary
@@ -48,25 +49,19 @@ def filter_results_by_target_values(results_df,
         #temp_sub_results = temp_sub_results[temp_sub_results[feature] == value]
        # print(feature, value, filtered_results.shape)
 
-    # Take the mean in case there are multiple rows with the same parameter values# Take the mean in case there are multiple rows with the same parameter values
-    group_cols = [col for col in filtered_results.columns 
-                  if col not in ['avgadmittedskill_school_a', 
-                                 'avgadmittedskill_school_b',
-                                 'Index',
-                                 'STUDENT_UTILITY']]
-    filtered_results = (filtered_results
-                        .groupby(group_cols)
-                        .mean()
-                        .reset_index()
-                        )
+    if return_mean_results:
+        # Take the mean in case there are multiple rows with the same parameter values# Take the mean in case there are multiple rows with the same parameter values
+        group_cols = [col for col in filtered_results.columns 
+                    if col not in ['avgadmittedskill_school_a', 
+                                    'avgadmittedskill_school_b',
+                                    'Index',
+                                    'STUDENT_UTILITY']]
+        filtered_results = (filtered_results
+                            .groupby(group_cols)
+                            .mean()
+                            .reset_index()
+                            )
     if feature_to_vary is not None:
-        # # Calculate mean sub-sub results for the feature to vary
-        # temp_sub_results = sub_sub_results.groupby(feature_to_vary).mean()
-        
-        #     # Calculate mean sub-sub results for the feature to vary
-        # temp_sub_results = sub_sub_results.groupby(feature_to_vary).mean()
-        
-
 
         # Prepare data for School 1
         temp_df_a = (
@@ -146,7 +141,7 @@ def plot_avg_admitted_skill_by_policy(
     results_df, 
     sub_sub_results, 
     feature_to_vary, 
-    target_values
+    target_values,
 ):
     """
     Plots the average admitted skill by policy, varying a specified feature.
@@ -319,7 +314,7 @@ def plot_avg_admitted_skill_by_policy_heatmap(
     # INSERT_YOUR_CODE
     # Parse the names and values in target_values and append to the figure name
     if 'target_values' in locals() and hasattr(target_values, 'items'):
-        target_kv_str = "_".join(f"{k}={v}" for k, v in target_values.items())
+        target_kv_str = "_".join(f"{k}={v}" for k, v in sorted(target_values.items()))
     else:
         target_kv_str = "novals"
     plt.savefig(

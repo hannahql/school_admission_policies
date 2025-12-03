@@ -41,34 +41,7 @@ policy_names = {
     (0, 0): "FULL_FULL"
 }
 
-# =============================================================================
-# Define parameter ranges to iterate over 
-# =============================================================================
-capacities_to_run_a = [0.2]
-capacities_to_run_b = [0.2]
-# utilities_to_run_a = [2, 3, 4,]
-# utilities_to_run_b = [1, 2, 3,]
-utilities_to_run_a = [3]
-utilities_to_run_b = [2]
 
-# test_costs_to_run = [1.75,  2.0, 2.25]
-test_costs_to_run = [0.5, 2]
-
-# Generate all combinations of parameters
-parameter_combinations = list(itertools.product(
-    capacities_to_run_a,
-    capacities_to_run_b,
-    utilities_to_run_a,
-    utilities_to_run_b,
-    test_costs_to_run
-))
-
-# Filter combinations where utility_a > utility_b
-valid_combinations = [
-    (cap_a, cap_b, util_a, util_b, test_cost)
-    for cap_a, cap_b, util_a, util_b, test_cost in parameter_combinations
-    if util_a > util_b
-]
 
 
 def run_simulation(args):
@@ -82,18 +55,18 @@ def run_simulation(args):
     # Unpack all arguments
     idx, capacity_a, capacity_b, utility_a, utility_b, test_cost, features_to_use_a, features_to_use_b, output_directory = args
     
-    start_time = time.time()
+    #start_time = time.time()
     
     # Define base parameters with the policy-specific features
     base_parameters = {
         "SIMULATION_TYPE": "TWO_SCHOOL_COST_MODEL",
         "TRUESKILL_DIST": ("NORMAL", 0, 1),
-        "GRID_SEARCH_NUM_THRESHOLDS": 100,
-        #"GRID_SEARCH_NUM_THRESHOLDS": 10,
+        #"GRID_SEARCH_NUM_THRESHOLDS": 150,
+        "GRID_SEARCH_NUM_THRESHOLDS": 10,
         "FEATURES_TO_USE_a": features_to_use_a,
         "FEATURES_TO_USE_b": features_to_use_b,
-        "NUM_STUDENTS": 1000,
-        #"NUM_STUDENTS": 100,
+        #"NUM_STUDENTS": 1000,
+        "NUM_STUDENTS": 100,
     }
     
     # Update the parameters with the current combination
@@ -122,11 +95,44 @@ def run_simulation(args):
     with open(os.path.join(output_directory, f"full_parameters_{idx}.json"), "w") as file:
         json.dump(full_params, file, indent=4)
     
-    end_time = time.time()
+    #end_time = time.time()
     # print(f"{parameters_of_interest}: {end_time - start_time:.2f} seconds")
 
 
 if __name__ == "__main__":
+    n_runs = 5
+    
+    # =============================================================================
+    # Define parameter ranges to iterate over 
+    # =============================================================================
+    capacities_to_run_a = [0.2]
+    capacities_to_run_b = [0.2]
+    # utilities_to_run_a = [2, 3, 4,]
+    # utilities_to_run_b = [1, 2, 3,]
+    utilities_to_run_a = [3, 4]
+    utilities_to_run_b = [2]
+
+    # test_costs_to_run = [1.75,  2.0, 2.25]
+    test_costs_to_run = [0.5, 1.5, 1.75, 2]
+    
+    # =============================================================================
+
+    # Generate all combinations of parameters
+    parameter_combinations = list(itertools.product(
+        capacities_to_run_a,
+        capacities_to_run_b,
+        utilities_to_run_a,
+        utilities_to_run_b,
+        test_costs_to_run
+    ))
+
+    # Filter combinations where utility_a > utility_b
+    valid_combinations = [
+        (cap_a, cap_b, util_a, util_b, test_cost)
+        for cap_a, cap_b, util_a, util_b, test_cost in parameter_combinations
+        if util_a > util_b
+    ]
+
     # Create output directories for all policies
     for features_to_use_a, features_to_use_b in test_policy_combinations:
         policy_name = policy_names[(features_to_use_a, features_to_use_b)]
@@ -135,17 +141,19 @@ if __name__ == "__main__":
     
     # Build args list: for each parameter combination, run all 4 policies
     args_list = []
-    for idx, (cap_a, cap_b, util_a, util_b, test_cost) in enumerate(valid_combinations):
-        for features_to_use_a, features_to_use_b in test_policy_combinations:
-            policy_name = policy_names[(features_to_use_a, features_to_use_b)]
-            output_directory = os.path.join(output_root, f"{policy_name}_test/")
-            
-            args_list.append((
-                idx,  # Same index for all policies with same parameters
-                cap_a, cap_b, util_a, util_b, test_cost,
-                features_to_use_a, features_to_use_b,
-                output_directory
-            ))
+    for base_idx, (cap_a, cap_b, util_a, util_b, test_cost) in enumerate(valid_combinations):
+        for run_num in range(n_runs):
+            idx = base_idx + run_num * 100
+            for features_to_use_a, features_to_use_b in test_policy_combinations:
+                policy_name = policy_names[(features_to_use_a, features_to_use_b)]
+                output_directory = os.path.join(output_root, f"{policy_name}_test/")
+                
+                args_list.append((
+                    idx,  # Same index for all policies with same parameters
+                    cap_a, cap_b, util_a, util_b, test_cost,
+                    features_to_use_a, features_to_use_b,
+                    output_directory
+                ))
     
     # Run all simulations in parallel
     with Pool(n_processes) as pool:
