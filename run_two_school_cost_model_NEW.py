@@ -55,18 +55,19 @@ def run_simulation(args):
     # Unpack all arguments
     idx, capacity_a, capacity_b, utility_a, utility_b, test_cost, features_to_use_a, features_to_use_b, output_directory = args
     
+    np.random.seed(idx)
     #start_time = time.time()
     
     # Define base parameters with the policy-specific features
     base_parameters = {
         "SIMULATION_TYPE": "TWO_SCHOOL_COST_MODEL",
         "TRUESKILL_DIST": ("NORMAL", 0, 1),
-        #"GRID_SEARCH_NUM_THRESHOLDS": 150,
-        "GRID_SEARCH_NUM_THRESHOLDS": 10,
+        "GRID_SEARCH_NUM_THRESHOLDS": 150,
+        #"GRID_SEARCH_NUM_THRESHOLDS": 10,
         "FEATURES_TO_USE_a": features_to_use_a,
         "FEATURES_TO_USE_b": features_to_use_b,
-        #"NUM_STUDENTS": 1000,
-        "NUM_STUDENTS": 100,
+        "NUM_STUDENTS": 1000,
+        #"NUM_STUDENTS": 100,
     }
     
     # Update the parameters with the current combination
