@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import numpy as np
 import os
 import json
 
@@ -33,21 +34,28 @@ def read_saved_inputs(index, output_directory):
 
 
 def filter_results_by_target_values(results_df, 
-                                    sub_sub_results, 
                                     target_values,
+                                    sub_sub_results=None, #whether to replace sub_sub results with passed in results
                                     feature_to_vary = None,
                                     return_mean_results=True, #if False, return individual rows
                                     ):
         
     # Filter the results DataFrame based on target values, excluding the feature to vary
     filtered_results = results_df.copy()
-    #temp_sub_results = sub_sub_results.copy()
-    #print(filtered_results.shape)
+
+    if sub_sub_results is not None:
+        filtered_sub_sub_results = sub_sub_results.copy()
+    else:
+        filtered_sub_sub_results = filtered_results.query("Policy == 'SUB_SUB_test'")
+    
+
     for feature, value in target_values.items():
         # filtered_results = filtered_results[filtered_results[feature] == value]
         filtered_results = filtered_results.query(f"abs({feature} - @value) < 1e-3")
+        
+        if "COST" not in feature:
+            filtered_sub_sub_results = filtered_sub_sub_results.query(f"abs({feature} - @value) < 1e-3")
         #temp_sub_results = temp_sub_results[temp_sub_results[feature] == value]
-       # print(feature, value, filtered_results.shape)
 
     if return_mean_results:
         # Take the mean in case there are multiple rows with the same parameter values# Take the mean in case there are multiple rows with the same parameter values
@@ -56,11 +64,19 @@ def filter_results_by_target_values(results_df,
                                     'avgadmittedskill_school_b',
                                     'Index',
                                     'STUDENT_UTILITY']]
+        group_cols_wo_cost = [col for col in group_cols if "COST" not in col]
         filtered_results = (filtered_results
                             .groupby(group_cols)
-                            .mean()
+                            .mean(numeric_only=True)
                             .reset_index()
                             )
+
+        filtered_sub_sub_results = (filtered_sub_sub_results
+                                    .groupby(group_cols_wo_cost)
+                                    .mean(numeric_only=True)
+                                    .reset_index()
+                                    )
+        
     if feature_to_vary is not None:
 
         # Prepare data for School 1
@@ -91,7 +107,7 @@ def filter_results_by_target_values(results_df,
         )
         temp_df_a = temp_df_a.reset_index().drop(columns=["level_0"])
         
-            # Prepare data for School 2
+        # Prepare data for School 2
         temp_df_b = (
             filtered_results
             #.query("Policy != 'SUB_SUB_nonstrategic_code'")
@@ -101,37 +117,50 @@ def filter_results_by_target_values(results_df,
         )
         temp_df_b = temp_df_b.reset_index().drop(columns=["level_0"])
         
-        # temp_df_a = temp_df_a.append(
-        #                        pd.Series({0:sub_sub_results['avgadmittedskill_school_a'].mean(),
-        #                               "Policy":"SUB_SUB"
-        #                               }, name=len(temp_df_a)))
-        # temp_df_b = temp_df_b.append(pd.Series({0:sub_sub_results['avgadmittedskill_school_b'].mean(),
-        #                                 "Policy":"SUB_SUB"
-        #                                 }, name=len(temp_df_b)))
+    if sub_sub_results is not None:
+        temp_df_a = temp_df_a.query("Policy != 'SUB_SUB_test'")
+        temp_df_b = temp_df_b.query("Policy != 'SUB_SUB_test'")
+
+        temp_df_a = pd.concat([temp_df_a, pd.DataFrame({
+            "Policy": "SUB_SUB_test",
+            0: filtered_sub_sub_results["avgadmittedskill_school_a"].values
+        })], ignore_index=True)
+        temp_df_b = pd.concat([temp_df_b, pd.DataFrame({
+            "Policy": "SUB_SUB_test",
+            0: filtered_sub_sub_results["avgadmittedskill_school_b"].values
+        })], ignore_index=True)
+
+        
+
+        
+        
                    
-    if sub_sub_results is not None:                  
-        temp_df_a = pd.concat(
-        [
-            temp_df_a,
-            pd.DataFrame([{
-                0: sub_sub_results['avgadmittedskill_school_a'].mean(),
-                "Policy": "SUB_SUB"
-            }])
-        ],
-        ignore_index=True
-        )
+    # if sub_sub_results is not None: # add mean of SUB_SUB results passed in                
+    #     temp_df_a = pd.concat(
+    #     [
+    #         temp_df_a,
+    #         pd.DataFrame([{
+    #             0: sub_sub_results['avgadmittedskill_school_a'].mean(),
+    #             # 0: sub_sub_results['avgadmittedskill_school_a'],
+    #             "Policy": "SUB_SUB"
+    #         }])
+    #     ],
+    #     ignore_index=True
+    #     )
 
-        temp_df_b = pd.concat(
-            [
-                temp_df_b,
-                pd.DataFrame([{
-                    0: sub_sub_results['avgadmittedskill_school_b'].mean(),
-                    "Policy": "SUB_SUB"
-                }])
-            ],
-            ignore_index=True
-        )
+    #     temp_df_b = pd.concat(
+    #         [
+    #             temp_df_b,
+    #             pd.DataFrame([{
+    #                 0: sub_sub_results['avgadmittedskill_school_b'].mean(),
+    #                 # 0: sub_sub_results['avgadmittedskill_school_b'],
+    #                 "Policy": "SUB_SUB"
+    #             }])
+    #         ],
+    #         ignore_index=True
+    #     )
 
+        
     
     
     return temp_df_a, temp_df_b#, temp_sub_results
@@ -163,8 +192,14 @@ def plot_avg_admitted_skill_by_policy(
         filtered_results = filtered_results[filtered_results[feature] == value]
     #print(filtered_results)
 
-    # Calculate mean sub-sub results for the feature to vary
-    temp_sub_results = sub_sub_results.groupby(feature_to_vary).mean()
+    if sub_sub_results is not None:
+        filtered_sub_sub_results = sub_sub_results.copy()
+        for feature, value in target_values.items():
+            if "COST" not in feature:
+                filtered_sub_sub_results = filtered_sub_sub_results[filtered_sub_sub_results[feature] == value]
+        
+    # # Calculate mean sub-sub results for the feature to vary
+    # temp_sub_results = sub_sub_results.groupby(feature_to_vary).mean()
 
 
     # Prepare data for School 1
@@ -223,41 +258,96 @@ def plot_avg_admitted_skill_by_policy(
     
 def plot_avg_admitted_skill_by_policy_heatmap(
     results_df, 
-    sub_sub_results, 
     feature_to_vary, 
     target_values,
     fig_directory,
+    sub_sub_results=None,
+    plot_standard_errors=False,
 ):
     """
     Plots heatmap of the average admitted skill by policy, 
     varying a specified feature, and holding other features constant.
+    
+    If plot_standard_errors is True, the heatmap will be annotated
+    with (mean ± 2 * SEM).
     """
     
+    
+    # Get mean results
     results_a, results_b = filter_results_by_target_values(
                                             results_df=results_df,
                                             sub_sub_results=sub_sub_results,
                                             feature_to_vary=feature_to_vary,
                                             target_values=target_values,
+                                            return_mean_results=True,
                                             )
-    
-    results_a = results_a[results_a["Policy"] != "SUB_SUB_test"]
-    results_b = results_b[results_b["Policy"] != "SUB_SUB_test"]
-    
-    
+
+
     # Extract the action parts from the policy names
     results_a['Action_A'] = results_a['Policy'].apply(lambda x: x.split('_')[0])
     results_a['Action_B'] = results_a['Policy'].apply(lambda x: x.split('_')[1])
     matrix_a = results_a.pivot(index='Action_A', columns='Action_B',
                             values=0)
 
+
     # Extract the action parts from the policy names
     results_b['Action_A'] = results_b['Policy'].apply(lambda x: x.split('_')[0])
     results_b['Action_B'] = results_b['Policy'].apply(lambda x: x.split('_')[1])
     matrix_b = results_b.pivot(index='Action_A', columns='Action_B',
                             values=0)
-
     
-        # Create heatmap of matrix_a - avg admitted skill of school a
+    if plot_standard_errors: # plot mean results and standard errors
+        results_a_all, results_b_all = filter_results_by_target_values(
+                                            results_df=results_df,
+                                            sub_sub_results=sub_sub_results,
+                                            feature_to_vary=feature_to_vary,
+                                            target_values=target_values,
+                                            return_mean_results=False,
+                                            )
+        sems_a = results_a_all.groupby("Policy").sem().reset_index()
+        sems_b = results_b_all.groupby("Policy").sem().reset_index()
+
+        
+        sems_a['Action_A'] = sems_a['Policy'].apply(lambda x: x.split('_')[0])
+        sems_a['Action_B'] = sems_a['Policy'].apply(lambda x: x.split('_')[1])
+        sems_matrix_a = sems_a.pivot(index='Action_A', columns='Action_B',
+                                    values=0)
+
+
+        sems_b['Action_A'] = sems_b['Policy'].apply(lambda x: x.split('_')[0])
+        sems_b['Action_B'] = sems_b['Policy'].apply(lambda x: x.split('_')[1])
+        sems_matrix_b = sems_b.pivot(index='Action_A', columns='Action_B',
+                                    values=0)
+        
+        # Create annotation strings for each cell
+        annot_a = matrix_a.copy().astype(str)
+        annot_b = matrix_b.copy().astype(str)
+
+        for i in range(matrix_a.shape[0]):
+            for j in range(matrix_a.shape[1]):
+                val = matrix_a.iloc[i, j]
+                try:
+                    sem = sems_matrix_a.iloc[i, j]
+                except Exception:
+                    sem = np.nan
+                if np.isnan(sem):
+                    annot_a.iloc[i, j] = f"{val:.2f}"
+                else:
+                    annot_a.iloc[i, j] = f"{val:.2f}\n±{2*sem:.3f}"
+
+        for i in range(matrix_b.shape[0]):
+            for j in range(matrix_b.shape[1]):
+                val = matrix_b.iloc[i, j]
+                try:
+                    sem = sems_matrix_b.iloc[i, j]
+                except Exception:
+                    sem = np.nan
+                if np.isnan(sem):
+                    annot_b.iloc[i, j] = f"{val:.2f}"
+                else:
+                    annot_b.iloc[i, j] = f"{val:.2f}\n±{2*sem:.3f}"
+    
+    # Create heatmap of matrix_a - avg admitted skill of school a
     # Create a figure with two subplots side by side
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
 
@@ -265,8 +355,13 @@ def plot_avg_admitted_skill_by_policy_heatmap(
     epsilon = 0.2
     vmin = min(matrix_a.min().min(), matrix_b.min().min()) - epsilon
     vmax = max(matrix_a.max().max(), matrix_b.max().max()) + epsilon
-    sns.heatmap(matrix_a, annot=True, fmt='.3f', ax=ax1, vmin=vmin, vmax=vmax, 
-                cmap=sns.cm.rocket_r, annot_kws={"size": 18}) 
+    if plot_standard_errors:
+        sns.heatmap(matrix_a, annot=annot_a,  ax=ax1, vmin=vmin, vmax=vmax, 
+                    cmap=sns.cm.rocket_r, annot_kws={"size": 18}, fmt=""
+                    )
+    else:
+        sns.heatmap(matrix_a, annot=True, fmt='.3f', ax=ax1, vmin=vmin, vmax=vmax, 
+                    cmap=sns.cm.rocket_r, annot_kws={"size": 18}) 
     ax1.set_title("Average admitted skill: $J_1$", fontsize=18, pad=20)
     ax1.xaxis.set_label_position('top')
     ax1.set_xlabel("$J_2$ policy", fontsize=18)
@@ -278,7 +373,12 @@ def plot_avg_admitted_skill_by_policy_heatmap(
 
     # Plot heatmap of matrix_b - avg admitted skill of school b
     mask = matrix_b.isnull()
-    sns.heatmap(matrix_b, annot=True, fmt='.3f', ax=ax2, vmin=vmin, vmax=vmax,
+    if plot_standard_errors:
+        sns.heatmap(matrix_b, annot=annot_b,  ax=ax2, vmin=vmin, vmax=vmax,
+                    cmap=sns.cm.rocket_r, annot_kws={"size": 18}, fmt="",
+                    )
+    else:
+        sns.heatmap(matrix_b, annot=True, fmt='.3f', ax=ax2, vmin=vmin, vmax=vmax,
                 cmap=sns.cm.rocket_r, annot_kws={"size": 18}, mask=mask
                 )
     # Get the colorbars from both heatmaps
@@ -318,7 +418,7 @@ def plot_avg_admitted_skill_by_policy_heatmap(
     else:
         target_kv_str = "novals"
     plt.savefig(
-        os.path.join(fig_directory, f"avg_skill_heatmap_{target_kv_str}.png"),
+        os.path.join(fig_directory, f"avg_skill_heatmap_{target_kv_str}{'_sems' if plot_standard_errors else ''}.png"),
         dpi=300
     )
     return
