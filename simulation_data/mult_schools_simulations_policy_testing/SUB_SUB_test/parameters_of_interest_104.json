@@ -1,9 +1,0 @@
-{
-    "CAPACITY_a": 0.2,
-    "CAPACITY_b": 0.2,
-    "STUDENT_UTILITY": {
-        "a": 3,
-        "b": 1
-    },
-    "STUDENT_TEST_COST": 1.5
-}

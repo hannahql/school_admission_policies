@@ -50,15 +50,14 @@ def filter_results_by_target_values(results_df,
     
 
     for feature, value in target_values.items():
-        # filtered_results = filtered_results[filtered_results[feature] == value]
         filtered_results = filtered_results.query(f"abs({feature} - @value) < 1e-3")
         
         if "COST" not in feature:
             filtered_sub_sub_results = filtered_sub_sub_results.query(f"abs({feature} - @value) < 1e-3")
-        #temp_sub_results = temp_sub_results[temp_sub_results[feature] == value]
+
 
     if return_mean_results:
-        # Take the mean in case there are multiple rows with the same parameter values# Take the mean in case there are multiple rows with the same parameter values
+        # Take the mean in case there are multiple rows with the same parameter values
         group_cols = [col for col in filtered_results.columns 
                     if col not in ['avgadmittedskill_school_a', 
                                     'avgadmittedskill_school_b',
@@ -82,7 +81,6 @@ def filter_results_by_target_values(results_df,
         # Prepare data for School 1
         temp_df_a = (
             filtered_results
-            #.query("Policy != 'SUB_SUB_nonstrategic_code'")
             [['Policy', 'avgadmittedskill_school_a', feature_to_vary]]
             .set_index(['Policy', feature_to_vary])
             .unstack(level=0)
@@ -91,7 +89,6 @@ def filter_results_by_target_values(results_df,
             # Prepare data for School 2
         temp_df_b = (
             filtered_results
-            #.query("Policy != 'SUB_SUB_nonstrategic_code'")
             [['Policy', 'avgadmittedskill_school_b', feature_to_vary]]
             .set_index(['Policy', feature_to_vary])
             .unstack(level=0)
@@ -100,7 +97,6 @@ def filter_results_by_target_values(results_df,
         # Prepare data for School 1
         temp_df_a = (
             filtered_results
-            #.query("Policy != 'SUB_SUB_nonstrategic_code'")
             [['Policy', 'avgadmittedskill_school_a']]
             .set_index(['Policy'])
             .unstack(level=0)
@@ -110,7 +106,6 @@ def filter_results_by_target_values(results_df,
         # Prepare data for School 2
         temp_df_b = (
             filtered_results
-            #.query("Policy != 'SUB_SUB_nonstrategic_code'")
             [['Policy', 'avgadmittedskill_school_b']]
             .set_index(['Policy'])
             .unstack(level=0)
@@ -132,45 +127,15 @@ def filter_results_by_target_values(results_df,
 
         
 
-        
-        
-                   
-    # if sub_sub_results is not None: # add mean of SUB_SUB results passed in                
-    #     temp_df_a = pd.concat(
-    #     [
-    #         temp_df_a,
-    #         pd.DataFrame([{
-    #             0: sub_sub_results['avgadmittedskill_school_a'].mean(),
-    #             # 0: sub_sub_results['avgadmittedskill_school_a'],
-    #             "Policy": "SUB_SUB"
-    #         }])
-    #     ],
-    #     ignore_index=True
-    #     )
-
-    #     temp_df_b = pd.concat(
-    #         [
-    #             temp_df_b,
-    #             pd.DataFrame([{
-    #                 0: sub_sub_results['avgadmittedskill_school_b'].mean(),
-    #                 # 0: sub_sub_results['avgadmittedskill_school_b'],
-    #                 "Policy": "SUB_SUB"
-    #             }])
-    #         ],
-    #         ignore_index=True
-    #     )
-
-        
-    
     
     return temp_df_a, temp_df_b#, temp_sub_results
 
 
 def plot_avg_admitted_skill_by_policy(
-    results_df, 
-    sub_sub_results, 
+    results_df,  
     feature_to_vary, 
     target_values,
+    sub_sub_results=None,
 ):
     """
     Plots the average admitted skill by policy, varying a specified feature.
@@ -190,7 +155,6 @@ def plot_avg_admitted_skill_by_policy(
     filtered_results = results_df.copy()
     for feature, value in target_values.items():
         filtered_results = filtered_results[filtered_results[feature] == value]
-    #print(filtered_results)
 
     if sub_sub_results is not None:
         filtered_sub_sub_results = sub_sub_results.copy()
@@ -198,38 +162,43 @@ def plot_avg_admitted_skill_by_policy(
             if "COST" not in feature:
                 filtered_sub_sub_results = filtered_sub_sub_results[filtered_sub_sub_results[feature] == value]
         
-    # # Calculate mean sub-sub results for the feature to vary
-    # temp_sub_results = sub_sub_results.groupby(feature_to_vary).mean()
+    else:
+        filtered_sub_sub_results = filtered_results.query("Policy == 'SUB_SUB_test'")
 
-
+    # Aggregate by (Policy, feature_to_vary) to handle multiple runs, then unstack
     # Prepare data for School 1
     temp_df_a = (
         filtered_results
-        .query("Policy != 'SUB_SUB_nonstrategic_code'")
-        [['Policy', 'avgadmittedskill_school_a', feature_to_vary]]
-        .set_index(['Policy', feature_to_vary])
+        [["Policy", "avgadmittedskill_school_a", feature_to_vary]]
+        .groupby(["Policy", feature_to_vary])
+        .mean()
+        .reset_index()
+        .set_index(["Policy", feature_to_vary])
         .unstack(level=0)
     )
     temp_df_a.columns = temp_df_a.columns.droplevel(0)
-    #print(temp_df_a)
     
     # Prepare data for School 2
     temp_df_b = (
         filtered_results
-        .query("Policy != 'SUB_SUB_nonstrategic_code'")
-        [['Policy', 'avgadmittedskill_school_b', feature_to_vary]]
-        .set_index(['Policy', feature_to_vary])
+        [["Policy", "avgadmittedskill_school_b", feature_to_vary]]
+        .groupby(["Policy", feature_to_vary])
+        .mean()
+        .reset_index()
+        .set_index(["Policy", feature_to_vary])
         .unstack(level=0)
     )
     temp_df_b.columns = temp_df_b.columns.droplevel(0)
     
-    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 6), sharey=True)
+    fig, axes = plt.subplots(nrows=1, ncols=2, 
+                             figsize=(12, 6), 
+                             sharey=True)
 
 
 
     # Plot for School 1
     temp_df_a.plot(kind='bar', ax=axes[0])
-    axes[0].axhline(temp_sub_results['avgadmittedskill_school_a'].mean(), 
+    axes[0].axhline(filtered_sub_sub_results['avgadmittedskill_school_a'].mean(), 
                     color="red", label="SUB_SUB")
     axes[0].legend(loc=(0, 0))
     axes[0].set_title("School 1")
@@ -241,7 +210,7 @@ def plot_avg_admitted_skill_by_policy(
 
     # Plot for School 2
     temp_df_b.plot(kind='bar', ax=axes[1])
-    axes[1].axhline(temp_sub_results['avgadmittedskill_school_b'].mean(), 
+    axes[1].axhline(filtered_sub_sub_results['avgadmittedskill_school_b'].mean(), 
                     color="red", label="SUB_SUB")
     axes[1].legend(loc=(1, 0))
     axes[1].set_title("School 2")
@@ -269,7 +238,7 @@ def plot_avg_admitted_skill_by_policy_heatmap(
     varying a specified feature, and holding other features constant.
     
     If plot_standard_errors is True, the heatmap will be annotated
-    with (mean ± 2 * SEM).
+    with (mean ± 2 * SE).
     """
     
     
@@ -411,7 +380,7 @@ def plot_avg_admitted_skill_by_policy_heatmap(
     plt.subplots_adjust(wspace=10)
 
     plt.tight_layout()
-    # INSERT_YOUR_CODE
+
     # Parse the names and values in target_values and append to the figure name
     if 'target_values' in locals() and hasattr(target_values, 'items'):
         target_kv_str = "_".join(f"{k}={v}" for k, v in sorted(target_values.items()))
