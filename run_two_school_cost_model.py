@@ -37,7 +37,7 @@ When running, set
 
 """
 
-output_root = "simulation_data/NEW_mult_schools_simulations_policy_testing/"
+output_root = "simulation_data/mult_schools_simulations_policy_testing/"
 n_processes = 16
 
 # Generate all possible combinations of test policies (-1=SUB, 0=FULL)

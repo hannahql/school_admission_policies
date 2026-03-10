@@ -24,3 +24,8 @@ __pycache__/
 *__pycache__/*
 */__pycache__/*
 plots/*
+
+
+# Claude Code
+.claude/settings.local.json
+.claude/CLAUDE.md
