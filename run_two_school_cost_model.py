@@ -38,6 +38,9 @@ When running, set
 * n_runs - in main block
 * capacities, utilities, test_costs - in main block
 
+When testing code: set GRID_SEARCH_NUM_THRESHOLDS to 10 and NUM_STUDENTS to 100.
+When running full simulations: set GRID_SEARCH_NUM_THRESHOLDS to 150 and NUM_STUDENTS to 1000.
+
 """
 
 output_root = "simulation_data/mult_schools_simulations_policy_testing/"
