@@ -23,4 +23,4 @@
 source /share/apps/software/anaconda3/etc/profile.d/conda.sh
 conda activate /share/garg/conda_virtualenvs/orie5355comp25
 
-python pipeline_use_paperfigures_two_school_strategic.py
+python run_two_school_cost_model.py

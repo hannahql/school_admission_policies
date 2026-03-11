@@ -22,7 +22,7 @@
     ],
     "NUM_FEATURES": 2,
     "NUM_GROUPS": 2,
-    "NUM_STUDENTS": 1000,
+    "NUM_STUDENTS": 100,
     "FRACTIONS_GROUPS": [
         0.5,
         0.5
@@ -43,7 +43,7 @@
     "DO_STUDENT_BUDGETS": false,
     "DO_AFFIRMATIVE_ACTION": false,
     "BINARY_SEARCH_NUM_THRESHOLDS": 200,
-    "GRID_SEARCH_NUM_THRESHOLDS": 150,
+    "GRID_SEARCH_NUM_THRESHOLDS": 10,
     "FEATURES_TO_USE_a": 0,
     "FEATURES_TO_USE_b": 0,
     "CAPACITY_a": 0.2,

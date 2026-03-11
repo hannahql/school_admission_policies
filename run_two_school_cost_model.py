@@ -13,6 +13,9 @@ import time
 from multiprocessing import Pool
 
 
+import sys
+sys.path.insert(0, 'src')
+
 from pipeline import pipeline
 from students.decision_functions_mult_schools import (
     exp_utility_mult_schools_test,
