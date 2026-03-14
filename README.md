@@ -21,7 +21,7 @@ This codebase implements a simulation framework for studying school admission po
 
 ## Data Requirements
 
-**Note:** The THEOP dataset is not included in this repository. Access requires submitting an application directly to the THEOP project. The processed data is maintained in a separate private repository. If you are a reviewer or collaborator and need access, please contact the authors.
+**Note:** The THEOP dataset is not included in this repository. Access requires submitting an application directly to the THEOP project. 
 
 To run the simulations using real data, you will need to obtain the Texas Higher Education Opportunity Project (THEOP) dataset. Follow these steps:
 
