@@ -31,3 +31,10 @@ plots/*
 # Claude Code
 .claude/settings.local.json
 .claude/CLAUDE.md
+
+simulation_data/
+FIGURE_AUDIT_2026_MS_testing_final.md
+FIGURE_REPRODUCTION.md
+FIGURE_REPRO_IMPLEMENTATION_PLAN.md
+reproduce_figures/outputs/
+reproduce_figures/workspace/
