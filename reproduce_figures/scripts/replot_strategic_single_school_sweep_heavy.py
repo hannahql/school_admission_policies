@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
 import random
 import site
@@ -60,6 +61,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cost-step", type=float, default=0.25)
     parser.add_argument("--b1-vars", default="1,4")
     parser.add_argument("--base-seed", type=int, default=20280812)
+    parser.add_argument("--workers", type=int, default=1, help="Parallel worker processes for missing simulation cache files.")
     parser.add_argument("--no-rerun-missing", action="store_true")
     parser.add_argument("--force-rerun", action="store_true")
     parser.add_argument("--save-students", action="store_true")
@@ -163,29 +165,57 @@ def ensure_school_cache(
         students_df.to_csv(instance_dir / f"students_df_cost_{cost}.csv")
 
 
-def load_or_generate(args: argparse.Namespace) -> dict[tuple[float, int, float], pd.DataFrame]:
+def generate_school_cache_task(task: tuple[argparse.Namespace, float, int, float, int]) -> Path:
+    args, b1_var, run, cost_b, seed = task
     pipeline = import_pipeline()
+    parameters = build_base_parameters(args, b1_var)
+    instance_dir = args.cache_root / instance_name(b1_var, run, args)
+    cost = cost_key(args.cost_a, float(cost_b))
+    ensure_school_cache(pipeline, args, instance_dir, parameters, cost, seed)
+    return schools_file(instance_dir, cost)
+
+
+def load_or_generate(args: argparse.Namespace) -> dict[tuple[float, int, float], pd.DataFrame]:
     b1_vars = parse_float_list(args.b1_vars)
     cost_bs = np.arange(0, args.max_cost_b + 0.5 * args.cost_step, args.cost_step).round(2)
     records: dict[tuple[float, int, float], pd.DataFrame] = {}
+    paths: list[tuple[tuple[float, int, float], Path]] = []
+    tasks: list[tuple[argparse.Namespace, float, int, float, int]] = []
 
     for b1_index, b1_var in enumerate(b1_vars):
-        base_parameters = build_base_parameters(args, b1_var)
         for run in range(args.num_runs):
-            name = instance_name(b1_var, run, args)
-            instance_dir = args.cache_root / name
+            instance_dir = args.cache_root / instance_name(b1_var, run, args)
             for cost_index, cost_b in enumerate(cost_bs):
                 cost = cost_key(args.cost_a, float(cost_b))
+                output_file = schools_file(instance_dir, cost)
+                key = (b1_var, run, float(cost_b))
+                paths.append((key, output_file))
+                if output_file.exists() and not args.force_rerun:
+                    continue
+                if args.no_rerun_missing:
+                    raise FileNotFoundError(f"Missing {output_file}")
                 seed = args.base_seed + b1_index * 100000 + run * 1000 + cost_index
-                ensure_school_cache(pipeline, args, instance_dir, base_parameters, cost, seed)
-                records[(b1_var, run, float(cost_b))] = read_schools_df(schools_file(instance_dir, cost))
+                tasks.append((args, b1_var, run, float(cost_b), seed))
 
+    if tasks:
+        workers = max(1, int(args.workers))
+        if workers == 1:
+            for task in tasks:
+                generate_school_cache_task(task)
+        else:
+            with ProcessPoolExecutor(max_workers=workers) as executor:
+                futures = [executor.submit(generate_school_cache_task, task) for task in tasks]
+                for future in as_completed(futures):
+                    future.result()
+
+    for key, output_file in paths:
+        records[key] = read_schools_df(output_file)
     return records
 
 
-def school_value(schools_df: pd.DataFrame, column: str):
+def school_value(schools_df: pd.DataFrame, column: str, default=0.0):
     if column not in schools_df:
-        raise ValueError(f"Missing {column} in generated schools_df")
+        return default
     return schools_df[column].iloc[0]
 
 

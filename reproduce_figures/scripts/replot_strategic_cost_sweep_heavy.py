@@ -9,6 +9,7 @@ application probabilities, admitted academic merit, and diversity.
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
 import random
 import site
@@ -47,6 +48,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cost-step", type=float, default=0.05)
     parser.add_argument("--b1-var", type=float, default=2.0)
     parser.add_argument("--base-seed", type=int, default=20280812)
+    parser.add_argument("--workers", type=int, default=1, help="Parallel worker processes for simulation runs.")
     parser.add_argument("--no-rerun-missing", action="store_true")
     parser.add_argument("--force-rerun", action="store_true")
     return parser.parse_args()
@@ -87,10 +89,19 @@ def base_parameters(args: argparse.Namespace, cost_b: float) -> dict:
     }
 
 
-def school_metric(schools_df: pd.DataFrame, column: str) -> float:
+def school_metric(schools_df: pd.DataFrame, column: str, default: float | None = None) -> float:
     if column not in schools_df:
+        if default is not None:
+            return default
         raise ValueError(f"Missing {column} in schools_df")
     return float(schools_df[column].iloc[0])
+
+
+def group_school_metric(schools_df: pd.DataFrame, column: str) -> float:
+    # The pipeline omits some group-specific columns when that group has no
+    # admitted students in a run. Treat those absent group outcomes as zero,
+    # matching the convention used by the calibrated THEOP plotting wrapper.
+    return school_metric(schools_df, column, default=0.0)
 
 
 def group_apply_rate(students_df: pd.DataFrame, group: str) -> float:
@@ -99,30 +110,39 @@ def group_apply_rate(students_df: pd.DataFrame, group: str) -> float:
     return float(students_df.query("group == @group")["take_test_at_threshold"].mean())
 
 
-def run_simulations(args: argparse.Namespace) -> pd.DataFrame:
+def run_cost_sweep_task(task: tuple[argparse.Namespace, int, int, float]) -> dict[str, float | int]:
+    args, run, cost_index, cost_b = task
     pipeline = import_pipeline()
-    rows = []
-    costs = cost_grid(args)
-    for run in range(args.num_runs):
-        for cost_index, cost_b in enumerate(costs):
-            seed = args.base_seed + run * 1000 + cost_index
-            random.seed(seed)
-            np.random.seed(seed)
-            students_df, schools_df, _ = pipeline.pipeline(base_parameters(args, float(cost_b)))
-            rows.append(
-                {
-                    "cost_b": float(cost_b),
-                    "run": run,
-                    "p_apply_A": group_apply_rate(students_df, "A"),
-                    "p_apply_B": group_apply_rate(students_df, "B"),
-                    "avgadmittedskill_A": school_metric(schools_df, "avgadmittedskill_A"),
-                    "avgadmittedskill_B": school_metric(schools_df, "avgadmittedskill_B"),
-                    "avgadmittedskill": school_metric(schools_df, "avgadmittedskill"),
-                    "frac_B": school_metric(schools_df, "frac_B"),
-                }
-            )
+    seed = args.base_seed + run * 1000 + cost_index
+    random.seed(seed)
+    np.random.seed(seed)
+    students_df, schools_df, _ = pipeline.pipeline(base_parameters(args, float(cost_b)))
+    return {
+        "cost_b": float(cost_b),
+        "run": run,
+        "p_apply_A": group_apply_rate(students_df, "A"),
+        "p_apply_B": group_apply_rate(students_df, "B"),
+        "avgadmittedskill_A": group_school_metric(schools_df, "avgadmittedskill_A"),
+        "avgadmittedskill_B": group_school_metric(schools_df, "avgadmittedskill_B"),
+        "avgadmittedskill": school_metric(schools_df, "avgadmittedskill", default=0.0),
+        "frac_B": school_metric(schools_df, "frac_B", default=0.0),
+    }
 
-    df = pd.DataFrame(rows)
+
+def run_simulations(args: argparse.Namespace) -> pd.DataFrame:
+    costs = cost_grid(args)
+    tasks = [(args, run, cost_index, float(cost_b)) for run in range(args.num_runs) for cost_index, cost_b in enumerate(costs)]
+    workers = max(1, int(args.workers))
+    if workers == 1:
+        rows = [run_cost_sweep_task(task) for task in tasks]
+    else:
+        rows = []
+        with ProcessPoolExecutor(max_workers=workers) as executor:
+            futures = [executor.submit(run_cost_sweep_task, task) for task in tasks]
+            for future in as_completed(futures):
+                rows.append(future.result())
+
+    df = pd.DataFrame(rows).sort_values(["run", "cost_b"]).reset_index(drop=True)
     args.cache_root.mkdir(parents=True, exist_ok=True)
     df.to_csv(args.cache_root / METRICS_FILE, index=False)
     return df

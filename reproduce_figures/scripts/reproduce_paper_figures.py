@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create an ordered reproduction bundle for arXiv:2010.04396 figures.
+"""Create an ordered reproduction bundle for the paper figures.
 
 The bundle is organized in PDF figure order. This script only edits/copies
 outputs under the requested output directory. It does not modify simulation
@@ -19,10 +19,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REPRO_ROOT = REPO_ROOT / "reproduce_figures"
-PAPER_ROOT = REPRO_ROOT / "paper_sources" / "arxiv_2010_04396"
-DEFAULT_OUTPUT_ROOT = REPRO_ROOT / "outputs" / "arxiv_2010_04396"
+PAPER_ROOT = REPRO_ROOT / "paper_sources" / "paper_tex"
+DEFAULT_OUTPUT_ROOT = REPRO_ROOT / "outputs" / "paper_figures"
 DEFAULT_GENERATED_ROOT = REPRO_ROOT / "workspace" / "generated"
-DEFAULT_CACHE_ROOT = REPRO_ROOT / "workspace" / "cache"
+DEFAULT_CACHE_ROOT = REPRO_ROOT / "example_simulation_cache"
 REPRODUCTION_INPUTS = REPRO_ROOT / "inputs"
 
 
@@ -78,7 +78,7 @@ FIGURES: tuple[Figure, ...] = (
             Panel("plots/simulations_vary_barrier_2dIF_PROB_MEETS_BUDGET_B.pdf", "f_barrier_if.pdf"),
         ),
         generator=("reproduce_figures/scripts/replot_legacy_nonstrategic_from_2020.py", "--figure-set", "variance_and_barrier"),
-        rerun_generator=("reproduce_figures/scripts/rerun_legacy_nonstrategic_cache_from_2020.py", "--figure-set", "variance_and_barrier", "--force-rerun"),
+        rerun_generator=("reproduce_figures/scripts/rerun_legacy_nonstrategic_cache_from_2020.py", "--figure-set", "all"),
     ),
     Figure(
         4,
@@ -86,7 +86,7 @@ FIGURES: tuple[Figure, ...] = (
         "generated_from_legacy_cache",
         (Panel("plots/paper_budgetsimulations_forstudentIF_update4_indivfairness_withunaware_noAA.pdf", "individual_fairness_withunaware_noAA.pdf"),),
         generator=("reproduce_figures/scripts/replot_legacy_nonstrategic_from_2020.py", "--figure-set", "fairness"),
-        rerun_generator=("reproduce_figures/scripts/rerun_legacy_nonstrategic_cache_from_2020.py", "--figure-set", "fairness", "--force-rerun"),
+        rerun_generator=("reproduce_figures/scripts/rerun_legacy_nonstrategic_cache_from_2020.py", "--figure-set", "all"),
     ),
     Figure(
         5,
@@ -98,19 +98,19 @@ FIGURES: tuple[Figure, ...] = (
     Figure(
         6,
         "two_school_heatmaps_low_high_cost",
-        "generated_from_20260323_cache",
+        "generated_from_two_school_cache",
         (
             Panel("second_round_MS/figures_ms_2025_dec_revision/avg_skill_heatmap_STUDENT_TEST_COST=0.5_UTILITY_a=3_UTILITY_b=2_sems.png", "a_cost_0.5.png"),
             Panel("second_round_MS/figures_ms_2025_dec_revision/avg_skill_heatmap_STUDENT_TEST_COST=2.0_UTILITY_a=3_UTILITY_b=2_sems.png", "b_cost_2.0.png"),
         ),
         generator=("reproduce_figures/scripts/replot_strategic_two_school_from_cache.py",),
         rerun_generator=("reproduce_figures/scripts/rerun_strategic_two_school_heatmaps.py", "--force-rerun"),
-        note="Replots from simulation_data/20260323.",
+        note="Replots from simulation_data/mult_schools_simulations_policy_testing; falls back to simulation_data/20260323.",
     ),
     Figure(
         7,
         "calibrated_high_info",
-        "implemented_heavy",
+        "generated_from_calibrated_theop_cache",
         (
             Panel("plots_may_2025_calibration_updates/high_info_avgadmittedskill_compare_barrier_cost_notest.png", "a_avgadmittedskill.png"),
             Panel("plots_may_2025_calibration_updates/high_info_frac_B_compare_barrier_cost_notest.png", "b_frac_B.png"),
@@ -118,12 +118,12 @@ FIGURES: tuple[Figure, ...] = (
         ),
         generator=("reproduce_figures/scripts/replot_calibrated_theop_from_fit_params.py",),
         rerun_generator=("reproduce_figures/scripts/replot_calibrated_theop_from_fit_params.py",),
-        note="Runs a large synthetic-simulation grid only with --allow-heavy.",
+        note="Plots from simulation_data/calibrated_theop_mult_runs in cache-first mode; reruns synthetic simulations only with --rerun-simulations.",
     ),
     Figure(
         8,
         "calibrated_low_info",
-        "implemented_heavy",
+        "generated_from_calibrated_theop_cache",
         (
             Panel("plots_may_2025_calibration_updates/low_info_avgadmittedskill_compare_barrier_cost_notest.png", "a_avgadmittedskill.png"),
             Panel("plots_may_2025_calibration_updates/low_info_frac_B_compare_barrier_cost_notest.png", "b_frac_B.png"),
@@ -131,7 +131,7 @@ FIGURES: tuple[Figure, ...] = (
         ),
         generator=("reproduce_figures/scripts/replot_calibrated_theop_from_fit_params.py",),
         rerun_generator=("reproduce_figures/scripts/replot_calibrated_theop_from_fit_params.py",),
-        note="Runs a large synthetic-simulation grid only with --allow-heavy.",
+        note="Plots from simulation_data/calibrated_theop_mult_runs in cache-first mode; reruns synthetic simulations only with --rerun-simulations.",
     ),
     Figure(
         9,
@@ -144,7 +144,7 @@ FIGURES: tuple[Figure, ...] = (
             Panel("plots/simulations_vary_feature1_and_disbudget_2ddifference_avgadmittedskill_B.pdf", "d_avgadmittedskill_B.pdf"),
         ),
         generator=("reproduce_figures/scripts/replot_legacy_nonstrategic_from_2020.py", "--figure-set", "two_dimensional_differences"),
-        rerun_generator=("reproduce_figures/scripts/rerun_legacy_nonstrategic_cache_from_2020.py", "--figure-set", "two_dimensional_differences", "--force-rerun"),
+        rerun_generator=("reproduce_figures/scripts/rerun_legacy_nonstrategic_cache_from_2020.py", "--figure-set", "all"),
     ),
     Figure(
         10,
@@ -196,11 +196,11 @@ FIGURES: tuple[Figure, ...] = (
     Figure(
         14,
         "two_school_heatmap_mid_cost",
-        "generated_from_20260323_cache",
+        "generated_from_two_school_cache",
         (Panel("second_round_MS/figures_ms_2025_dec_revision/avg_skill_heatmap_STUDENT_TEST_COST=1.5_UTILITY_a=3_UTILITY_b=2_sems.png", "avg_skill_heatmap_cost_1.5.png"),),
         generator=("reproduce_figures/scripts/replot_strategic_two_school_from_cache.py",),
         rerun_generator=("reproduce_figures/scripts/rerun_strategic_two_school_heatmaps.py", "--force-rerun"),
-        note="Replots from simulation_data/20260323.",
+        note="Replots from simulation_data/mult_schools_simulations_policy_testing; falls back to simulation_data/20260323.",
     ),
     Figure(
         15,
@@ -218,8 +218,9 @@ FIGURES: tuple[Figure, ...] = (
 
 GENERATED_STATUSES = {
     "generated_from_legacy_cache",
-    "generated_from_20260323_cache",
+    "generated_from_two_school_cache",
     "generated_from_single_school_cache",
+    "generated_from_calibrated_theop_cache",
     "implemented_heavy",
     "tex_native",
 }
@@ -275,8 +276,7 @@ def generated_output_dir(figure: Figure, args: argparse.Namespace) -> Path | Non
 
 
 def legacy_nonstrategic_cache_dir(generator: tuple[str, ...], args: argparse.Namespace) -> Path:
-    figure_set = option_value(list(generator), "--figure-set") or "all"
-    return args.cache_root / "legacy_nonstrategic" / figure_set
+    return args.cache_root / "legacy_nonstrategic" / "shared"
 
 
 def copy_missing_tree(source: Path, destination: Path) -> None:
@@ -299,6 +299,10 @@ def copy_missing_tree(source: Path, destination: Path) -> None:
 
 def stage_existing_cache(source: Path, destination: Path, args: argparse.Namespace) -> None:
     if args.rerun_simulations:
+        return
+    if destination.exists():
+        return
+    if not source.exists():
         return
     copy_missing_tree(source, destination)
 
@@ -369,11 +373,33 @@ def populate_staged_two_school_cache(source: Path, destination: Path) -> None:
                 raise OSError(f"Could not stage required two-school cache file: {source_file}") from exc
 
 
+TWO_SCHOOL_CACHE_SOURCES = (
+    REPRO_ROOT / "example_simulation_cache" / "mult_schools_simulations_policy_testing",
+    REPO_ROOT / "simulation_data" / "mult_schools_simulations_policy_testing",
+    REPO_ROOT / "simulation_data" / "20260323",
+)
+
+
+def source_has_two_school_cache(source: Path) -> bool:
+    for policy in TWO_SCHOOL_POLICIES:
+        policy_dir = source / policy
+        if not policy_dir.is_dir() or not required_two_school_files(policy_dir):
+            return False
+    return True
+
+
+def two_school_cache_source() -> Path:
+    for source in TWO_SCHOOL_CACHE_SOURCES:
+        if source_has_two_school_cache(source):
+            return source
+    return TWO_SCHOOL_CACHE_SOURCES[0]
+
+
 def staged_two_school_cache(args: argparse.Namespace) -> Path:
-    source = REPO_ROOT / "simulation_data" / "20260323"
+    source = two_school_cache_source()
     if args.dry_run:
         return source
-    destination = Path("/tmp") / "ms_figs_20260323_cache"
+    destination = Path("/tmp") / "ms_figs_two_school_cache"
     if not staged_cache_is_complete(source, destination):
         populate_staged_two_school_cache(source, destination)
     return destination
@@ -403,8 +429,8 @@ def command_with_runner_options(command: list[str], generator: tuple[str, ...], 
         stage_existing_cache(REPRODUCTION_INPUTS, cache_dir, args)
         command = append_option(command, "--cache-dir", cache_dir)
     elif script == "reproduce_figures/scripts/replot_calibrated_theop_from_fit_params.py":
-        cache_root = args.cache_root / "calibrated_theop_from_fit_params"
-        stage_existing_cache(REPO_ROOT / "simulation_data" / "calibrated_theop_from_fit_params", cache_root, args)
+        cache_root = args.cache_root / "calibrated_theop_mult_runs"
+        stage_existing_cache(REPO_ROOT / "simulation_data" / "calibrated_theop_mult_runs", cache_root, args)
         command = append_option(command, "--cache-root", cache_root)
     elif script == "reproduce_figures/scripts/replot_strategic_single_school_from_cache.py":
         cache_root = args.cache_root / "cost_model_single_school"
@@ -424,7 +450,7 @@ def command_with_runner_options(command: list[str], generator: tuple[str, ...], 
         command = append_option(command, "--cache-root", cache_root)
     elif script == "reproduce_figures/scripts/replot_legacy_unaware_aa_heavy_from_2020.py":
         pareto_cache_dir = args.cache_root / "legacy_nonstrategic" / "generated_pareto"
-        if_cache_dir = args.cache_root / "legacy_nonstrategic" / "fairness"
+        if_cache_dir = args.cache_root / "legacy_nonstrategic" / "shared"
         stage_existing_cache(REPRODUCTION_INPUTS, pareto_cache_dir, args)
         stage_existing_cache(REPRODUCTION_INPUTS, if_cache_dir, args)
         command = append_option(command, "--cache-dir", pareto_cache_dir)
@@ -434,7 +460,7 @@ def command_with_runner_options(command: list[str], generator: tuple[str, ...], 
         if script == "reproduce_figures/scripts/rerun_legacy_nonstrategic_cache_from_2020.py":
             command = append_option(command, "--cache-dir", legacy_nonstrategic_cache_dir(generator, args))
         elif script == "reproduce_figures/scripts/replot_calibrated_theop_from_fit_params.py":
-            command = append_option(command, "--cache-root", args.cache_root / "calibrated_theop_from_fit_params")
+            command = append_option(command, "--cache-root", args.cache_root / "calibrated_theop_mult_runs")
         elif script == "reproduce_figures/scripts/rerun_strategic_single_school_ec4.py":
             command = append_option(command, "--cache-root", args.cache_root / "cost_model_single_school_ec4")
         elif script == "reproduce_figures/scripts/replot_strategic_single_school_sweep_heavy.py":
@@ -447,7 +473,7 @@ def command_with_runner_options(command: list[str], generator: tuple[str, ...], 
             command = append_option(command, "--cache-root", args.cache_root / "20260323_rerun")
         elif script == "reproduce_figures/scripts/replot_legacy_unaware_aa_heavy_from_2020.py":
             command = append_option(command, "--cache-dir", args.cache_root / "legacy_unaware_aa_pareto")
-            command = append_option(command, "--if-cache-dir", args.cache_root / "legacy_nonstrategic" / "fairness")
+            command = append_option(command, "--if-cache-dir", args.cache_root / "legacy_nonstrategic" / "shared")
     else:
         if script == "reproduce_figures/scripts/replot_calibrated_theop_from_fit_params.py":
             command = append_flag(command, "--plots-only")
@@ -466,6 +492,12 @@ def command_with_runner_options(command: list[str], generator: tuple[str, ...], 
         "reproduce_figures/scripts/rerun_strategic_two_school_heatmaps.py",
     }:
         command = append_option(command, "--n-processes", args.cores)
+    if script in {
+        "reproduce_figures/scripts/replot_strategic_single_school_sweep_heavy.py",
+        "reproduce_figures/scripts/replot_strategic_cost_sweep_heavy.py",
+        "reproduce_figures/scripts/replot_strategic_drop_test_heatmaps_heavy.py",
+    }:
+        command = append_option(command, "--workers", args.cores)
     return command
 
 
@@ -551,7 +583,7 @@ def write_status(rows: list[dict[str, str]], output_root: Path, dry_run: bool) -
         return
     output_root.mkdir(parents=True, exist_ok=True)
     lines = [
-        "# arXiv 2010.04396 figure reproduction status",
+        "# Paper figure reproduction status",
         "",
         "| Figure | Bundle status | Generator | Panel | Panel status | Source |",
         "|---:|---|---|---|---|---|",

@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "status": "paper_fit_values_entered_from_executed_notebook",
+  "provenance": {
+    "raw_data_source": "Texas Higher Education Opportunity Project restricted data",
+    "calibration_notebook": "pipeline_use_appendixfigures_calibrated_data.ipynb",
+    "reproducibility_scope": "The raw restricted-data calibration step is not required. This file should contain the fitted parameters used to generate synthetic students for the calibrated simulations."
+  },
+  "simulation": {
+    "output_root": "simulation_data/calibrated_theop_from_fit_params",
+    "figure_output_root": "plots_may_2025_calibration_updates",
+    "num_runs": 100,
+    "true_skill_plot_mean": 2.919343697081647,
+    "ci_width": 2,
+    "skill_bin_roundmult": 5,
+    "if_gap_access_value": 0.4,
+    "base_parameters": {
+      "NUM_STUDENTS": 10000,
+      "NUM_SCHOOL_TYPES": 1,
+      "FRACTIONS_SCHOOL_TYPES": [
+        1
+      ],
+      "NUM_SCHOOLS": 1,
+      "CAPACITY": 0.1,
+      "NUM_GROUPS": 2,
+      "FRACTIONS_GROUPS": [
+        0.5,
+        0.5
+      ],
+      "FEATURE_DIST": [
+        "NORMAL",
+        0,
+        1
+      ],
+      "BINARY_SEARCH_NUM_THRESHOLDS": 250,
+      "STUDENT_UTILITY": 5,
+      "TRUESKILL_DIST": [
+        "NORMAL",
+        0,
+        0.561
+      ]
+    },
+    "group_labels": {
+      "A": "high economic privilege",
+      "B": "low economic privilege"
+    }
+  },
+  "calibrations": {
+    "high_info": {
+      "paper_description": "First-year GPA and test score",
+      "features": [
+        "cgpa_firstyear",
+        "testscore"
+      ],
+      "feature_distributions": {
+        "A": {
+          "cgpa_firstyear": {
+            "mean": 0.084,
+            "variance": 0.961
+          },
+          "testscore": {
+            "mean": 0.911,
+            "variance": 10.873
+          }
+        },
+        "B": {
+          "cgpa_firstyear": {
+            "mean": -0.045,
+            "variance": 0.835
+          },
+          "testscore": {
+            "mean": -0.487,
+            "variance": 9.677
+          }
+        }
+      }
+    },
+    "low_info": {
+      "paper_description": "High school class rank and test score",
+      "features": [
+        "decileR",
+        "testscore"
+      ],
+      "feature_distributions": {
+        "A": {
+          "decileR": {
+            "mean": -0.896,
+            "variance": 3.981
+          },
+          "testscore": {
+            "mean": 0.911,
+            "variance": 10.873
+          }
+        },
+        "B": {
+          "decileR": {
+            "mean": 0.479,
+            "variance": 7.046
+          },
+          "testscore": {
+            "mean": -0.487,
+            "variance": 9.677
+          }
+        }
+      }
+    }
+  },
+  "scenario_grids": {
+    "strategic_cost": {
+      "enabled": true,
+      "cost_A_values": [
+        0.0
+      ],
+      "cost_B_values": {
+        "start": 0.0,
+        "stop": 5.0,
+        "step": 0.05,
+        "round_digits": 2
+      }
+    },
+    "nonstrategic_barrier": {
+      "enabled": true,
+      "prob_meets_budget_A_values": [
+        1.0
+      ],
+      "prob_meets_budget_B_values": {
+        "start": 0.0,
+        "stop": 1.0,
+        "step": 0.025,
+        "round_digits": 2,
+        "extra": [
+          0.01,
+          0.02,
+          0.03,
+          0.04
+        ]
+      }
+    },
+    "drop_test": {
+      "enabled": true
+    }
+  },
+  "paper_outputs": [
+    "plots_may_2025_calibration_updates/high_info_avgadmittedskill_compare_barrier_cost_notest.png",
+    "plots_may_2025_calibration_updates/high_info_frac_B_compare_barrier_cost_notest.png",
+    "plots_may_2025_calibration_updates/high_info_if_gap_compare_barrier_cost_notest.png",
+    "plots_may_2025_calibration_updates/low_info_avgadmittedskill_compare_barrier_cost_notest.png",
+    "plots_may_2025_calibration_updates/low_info_frac_B_compare_barrier_cost_notest.png",
+    "plots_may_2025_calibration_updates/low_info_if_gap_compare_barrier_cost_notest.png"
+  ]
+}

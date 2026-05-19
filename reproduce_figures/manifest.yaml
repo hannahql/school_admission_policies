@@ -1,0 +1,7 @@
+paper_root: reproduce_figures/paper_sources/paper_tex
+cache_root: reproduce_figures/example_simulation_cache
+cache_tracked_in_git: false
+default_generated_root: reproduce_figures/workspace/generated
+default_output_root: reproduce_figures/outputs/paper_figures
+entrypoint: reproduce_figures/scripts/reproduce_all_figures.py
+rerun_entrypoint: reproduce_figures/reproduce_paper_figures.sh

@@ -113,7 +113,17 @@ def saveimage(name, fig=plt, extension="pdf", folder="plots/", close=True):
     if output_folder is None:
         output_folder = folder
     os.makedirs(output_folder, exist_ok=True)
-    fig.savefig(os.path.join(output_folder, "{}.{}".format(name, extension)), bbox_inches="tight", dpi=500)
+    output_path = os.path.join(output_folder, "{}.{}".format(name, extension))
+    try:
+        fig.savefig(output_path, bbox_inches="tight", dpi=500)
+    except OSError as exc:
+        # Matplotlib's PGF/PDF backend can finish writing the PDF and then fail
+        # while removing a temporary directory on some shared server filesystems.
+        # Treat that cleanup race as non-fatal only when the requested figure
+        # file exists and is nonempty.
+        if getattr(exc, "errno", None) != 39 or not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
+            raise
+        print("Ignoring non-fatal temporary-directory cleanup error after writing {}: {}".format(output_path, exc))
     if close:
         plt.close()
 

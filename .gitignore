@@ -19,7 +19,7 @@ data/*
 *.code-workspace
 
 # macOS
-.DS_Store 
+.DS_Store
 
 .Rhistory
 *.ipynb_checkpoints/
@@ -38,3 +38,7 @@ FIGURE_REPRODUCTION.md
 FIGURE_REPRO_IMPLEMENTATION_PLAN.md
 reproduce_figures/outputs/
 reproduce_figures/workspace/
+reproduce_figures/example_simulation_cache/
+reproduce_figures/slurm-*.out
+reproduce_figures/slurm-*.err
+reproduce_figures/*.sub

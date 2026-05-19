@@ -12,7 +12,7 @@ Default behavior:
 2. aggregate the cached results;
 3. save the six calibrated paper PNGs.
 
-Use --plots-only to skip simulation runs and plot from an existing cache.
+Use --plots-only to skip simulation runs and plot from an existing cache. In plots-only mode, the script infers the available run/grid values from the cache directory.
 """
 
 from __future__ import annotations
@@ -142,6 +142,37 @@ def grid_values(spec: Any) -> list[float]:
 
 def format_number(value: float) -> str:
     return str(float(value))
+
+
+def infer_plots_only_grid_from_cache(config: dict[str, Any]) -> None:
+    output_root = resolve_repo_path(config["simulation"]["output_root"])
+    if not output_root.exists():
+        return
+
+    cost_pattern = re.compile(r"([^_]+)_info_costmodel_costB_([^_]+)_run_([^_]+)$")
+    barrier_pattern = re.compile(r"([^_]+)_info_barriermodel__barrierB_([^_]+)_run_([^_]+)$")
+    cost_values: set[float] = set()
+    barrier_values: set[float] = set()
+    runs: set[int] = set()
+
+    for path in output_root.iterdir():
+        if not path.is_dir():
+            continue
+        cost_match = cost_pattern.match(path.name)
+        barrier_match = barrier_pattern.match(path.name)
+        if cost_match:
+            cost_values.add(float(cost_match.group(2)))
+            runs.add(int(cost_match.group(3)))
+        elif barrier_match:
+            barrier_values.add(float(barrier_match.group(2)))
+            runs.add(int(barrier_match.group(3)))
+
+    if cost_values:
+        config["scenario_grids"]["strategic_cost"]["cost_B_values"] = sorted(cost_values)
+    if barrier_values:
+        config["scenario_grids"]["nonstrategic_barrier"]["prob_meets_budget_B_values"] = sorted(barrier_values)
+    if runs and runs == set(range(max(runs) + 1)):
+        config["simulation"]["num_runs"] = max(runs) + 1
 
 
 def normalize_params(value: Any) -> Any:
@@ -494,12 +525,10 @@ def plot_calibrated_figures(config: dict[str, Any], dry_run: bool = False) -> No
             plt.close()
 
         metric = "if_gap"
-        matched_if_gap_cost = pd.DataFrame(
-            {run_index: matched_test_df[info_type][metric][access_value][run_index] for run_index in range(int(config["simulation"]["num_runs"]))}
-        ).T
-        matched_if_gap_barrier = pd.DataFrame(
-            {run_index: metrics_df_barrier[info_type][metric][access_value][run_index] for run_index in range(int(config["simulation"]["num_runs"]))}
-        ).T
+        cost_access = matched_test_df[info_type][metric][access_value].dropna()
+        barrier_access = metrics_df_barrier[info_type][metric][access_value].dropna()
+        matched_if_gap_cost = pd.DataFrame({run_index: value for run_index, value in cost_access.items()}).T
+        matched_if_gap_barrier = pd.DataFrame({run_index: value for run_index, value in barrier_access.items()}).T
 
         plt.figure()
         matched_if_gap_cost.mean().plot(label="Strategic", linewidth=2)
@@ -551,6 +580,8 @@ def main(argv: list[str] | None = None) -> int:
         config["simulation"]["output_root"] = str(args.cache_root)
     if args.output_dir is not None:
         config["simulation"]["figure_output_root"] = str(args.output_dir)
+    if args.plots_only:
+        infer_plots_only_grid_from_cache(config)
     validate_config(config)
 
     if not args.plots_only:

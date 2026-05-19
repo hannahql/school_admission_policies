@@ -67,10 +67,19 @@ def import_legacy_modules(legacy_code_dir: Path):
     return save_results, helpers, fancier_plots, indiv_fairness
 
 
+def cache_csv(path: Path) -> Path:
+    if path.exists():
+        return path
+    gz_path = path.with_suffix(path.suffix + ".gz")
+    if gz_path.exists():
+        return gz_path
+    return path
+
+
 def load_legacy_results(cache_dir: Path, save_results, helpers):
     del save_results
-    param_file = cache_dir / "params_run_paperclean5.csv"
-    metrics_file = cache_dir / "run_metrics_schools_paperclean5.csv"
+    param_file = cache_csv(cache_dir / "params_run_paperclean5.csv")
+    metrics_file = cache_csv(cache_dir / "run_metrics_schools_paperclean5.csv")
     if not param_file.exists() or not metrics_file.exists():
         raise FileNotFoundError("Missing migrated paperclean5 CSV inputs")
 

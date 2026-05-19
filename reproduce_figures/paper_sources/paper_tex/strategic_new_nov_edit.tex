@@ -1,0 +1,395 @@
+\section{Extensions: Strategic students and two schools}
+\label{sec:strategic}
+
+
+
+
+We extend our analysis to incorporate student incentives and school competition. Students strategically decide whether to take the test based on their expected admission probabilities and testing costs. Schools can also strategically decide which testing policy to use, since the outcomes of one school may depend on the policy of another. We first develop the model with incentives for schools and students, then characterize the student test-taking behavior illustrating that it may exhibit a non-monotonic pattern, and finally characterize equilibrium testing policies when schools compete and decide their test policy strategically.
+
+
+
+
+
+
+
+\subsection{Extended model}
+
+We extend the baseline model from Section~\ref{sec:baseline_model} to incorporate strategic student behavior and potential competition between schools.
+
+
+\smallskip
+\noindent\textbf{Schools.}
+We consider two settings with strategic students: with one and two schools, respectively; the latter introduces competition between schools.
+Each school $J_i$, $i=1,2$, admits up to capacity $C_i$, and we assume an over-demanded market such that $C_1 + C_2 <1$.
+Let $P^i$ denote the test policy of school $J_i$. For example, with two schools, if $J_1$ is test-based ($P^1_{\full}$) and $J_2$ is test-free ($P^2_{\subb}$), we write $\mathbf P=(P^1_{\full},P^2_{\subb})$. The testing policy determines the subset of features $S_i$ that school $i$ sees.  When the context is clear, we drop notation $i$.
+
+
+
+
+\smallskip
+\noindent\textbf{Students.}
+Each student in group $g$ incurs a constant cost $c_g$ to take the test. A student does not know their own true skill $q$, but does know their other features $\thetaset_{\subb}$ and group membership $g$. They use this information to assess the probability of admission when deciding whether to take the test and apply.
+Admission to school $i$ is of valuation $v_i$. With two schools, we assume that students in both groups strictly prefer $J_1$ to $J_2$, i.e., $v_1>v_2$.\footnote{Our theoretical results do not depend on value $v$ directly but rather the ratio $\frac{c_g}{v}$ (or $\frac{c_g}{v_1 - v_2}$ in the two-school case).}
+To rule out trivial equilibria where no students take the test due to high testing costs, we assume that the \textit{cost-to-valuation ratio} $\frac{c_g}{v_i} < 1$ (and $\frac{c_g}{v_1 - v_2}<1$ in the two-school case).
+
+Students are \textit{strategic} in the sense that they decide whether to apply to test-requiring schools; $\alpha\in\{0,1\}$ denotes the action of the student, where $\alpha =0$ corresponds to not taking the test and thus not applying to test-requiring schools and $\alpha = 1$ corresponds to taking the test and applying to test-requiring schools.
+If a school $J_i$ uses a test-free policy, then all students apply to it without taking the test.
+
+\smallskip
+\noindent\textbf{School's selection policy, conditional on test policy.}
+As in the base model, the school maximizes the academic merit of the admitted class,
+an objective that is strictly increasing in the skill estimate $\tilde q_{S_i}$. We define $Y_i(\thetaset_{S_i}, g; \mathbf{P})$ to be each school's selection policy. We show that, in both the single-school and the two-school setting, each school $i$ optimal selection policy is a threshold policy in which they determine a lower bound on the skill estimate $\tilde{q}^*_{S_i}$ and admit all students with estimated skill above the threshold, i.e., $Y_i(\thetaset_{S_i}, g; \mathbf{P}) = \indic\{\tilde q (\thetaset_{S_i}, g) \geq \tilde q^*_{S_i}\}$.  (See \Cref{eq:singleschoolproblem_main} for the single-school selection policy and Electronic Companion~\ref{app:strategic_two_schools}, Lemma~\ref{lemma:twoschoools_thresholdpolicies} for the two-school selection policy.)
+
+
+
+\smallskip
+\noindent\textbf{Student decisions.}
+First consider a single-school setting. With testing policy $P_{\full}$, each student's expected utility depends on the valuation $v$ from getting admitted, the probability of being admitted, and the testing cost $c_g$. A student who does not apply to the school or is not admitted receives an outside option with valuation 0.  If their perceived probability of admission is sufficiently high to outweigh the cost of the test, they decide to take the test and apply to the school.
+Thus each student solves the following optimization problem:
+\begin{equation}
+\label{eq.student.decision.cost.theta}
+    \alpha(\thetaset_{\subb}, g; P_{\full})=\arg \max_{\alpha \in \{0,1\}} \alpha \left( v \prob_{\theta_K} (Y = 1 \mid \thetaset_{\subb}, g, P_{\full}) -  c_g \right).
+\end{equation}
+If a school does not require the test ($P_{\subb}$), then the student always applies, i.e., $\alpha(\thetaset_{\subb}, g; P_{\subb}) =1$ for all $\thetaset_{\subb} \in \mathbb{R}^{K-1}$, $g \in \{A,B\}$.
+
+
+Now consider the setting with two schools. With policies $\mathbf{P} = (P^1, P^2)$, students decide whether to apply to each school. Because applying to test-free schools is always beneficial, the key decision is whether to also apply to test-requiring schools.
+For example, if $\mathbf{P} = (P^1_{\full}, P^2_{\subb})$, then the decision to take the test (and thus apply to school $J_1$) is given by:
+\small
+\begin{equation*}
+    \alpha(\thetaset_{\subb}, g; \mathbf{P}) = \arg \max_{\alpha \in \{0,1\}} \alpha \left( v_1 \prob (Y_1 = 1 \mid \thetaset_{\subb}, g, P^1_{\full})   - c_g  \right) + v_2 \prob (Y_1 = 0 \cap Y_2 =1 \mid \thetaset_{\subb}, g, {P}^2_{\subb}).
+\end{equation*}
+\normalsize
+If the student applies to both schools and is admitted to both, they enroll in $J_1$. (Student decisions for other policies are given in Electronic Companion~\ref{app:strategic_two_schools}.)
+We will show that this optimization problem induces more complex application behavior than with one school.
+
+
+\smallskip
+\noindent\textbf{Summary of school and student decisions.}
+Both schools simultaneously choose whether to require the test. After observing this pair of policies, students decide whether to take the test and where to apply, taking into account testing costs and their preferences over schools. Each school $J_i$ then observes its applicant pool and admits its top $C_i$ applicants according to its admission rule.
+Finally, students enroll in their most preferred school among those that admit them.
+
+
+\smallskip\noindent\textbf{Equilibria.}
+In the setting with a single school, we restrict attention to the interesting setting where $P_{\full}$, i.e., the school requires the test. We say that a pair $(\alpha^*, Y^*)$
+constitutes an \textit{equilibrium} if: (i) for all  $\thetaset_{\subb} \in \mathbb{R}^{K-1}$ and $g \in \{A,B\}$, $$\alpha^*(\thetaset_{\subb}, g; P_{\full}) = \arg \max_{\alpha \in \{0,1\}} \alpha \left( v \prob (Y^* = 1 \mid \thetaset_{\subb}, g; P_{\full}) - c_g \right);$$ and  (ii) for all  $\thetaset_{\full} \in \mathbb{R}^{K}$ and $g \in \{A,B\}$, $Y^*(\thetaset_{\full}, g; P_{\full}) = \indic\{\tilde q (\thetaset_{\full}, g) \geq \tilde q^*_{\full}\}$, where the optimal admission threshold
+$\tilde q^*_{\full}$  is the corresponding solution to
+\begin{equation}
+    \begin{split}
+    \label{eq:singleschoolproblem_main}
+    \tilde q^*_{\full} =  \min \left\{z \in \mathbb{R}:
+    \sum_g \pi_g \expec_{\thetaset_{\full}}[\alpha^*(\thetaset_{\subb},g; P_{\full})  \mid \tilde q (\thetaset_{\full}, g)  \geq z, g, P_{\full}  ] \leq C\right\}.
+\end{split}
+\end{equation}
+ In words, (i) requires that each student makes their optimal test-taking decision given the school's equilibrium decisions, and (ii) requires that the school's decisions correspond to their optimal threshold policy given their capacity and skill estimates.\footnote{Note that the above equilibrium definition depends on the full vector of $K-1$ feature values $\thetaset_{\subb}$.
+However, as formalized in Lemma \ref{lemma:reduced_equilibria_single} in Electronic Companion~\ref{app:strategic_single}, we can equivalently focus solely on the set of student actions that are dependent on $\tilde q_{\subb}$ instead of the entire vector of $K-1$ feature values $\thetaset_{\subb}$, where $\tilde q_{S} \triangleq \tilde q (\thetaset_{S}, g)$  is the skill estimate using feature set $S$ and the group $g$ of the given student.
+We thus work directly with the \textit{reduced-form equilibrium} $(\alpha^*(\tilde q_{S_i}, g; P_{S_i}), Y^*(\tilde q_{S_i}; P_{S_i}))$. In this case, the actions still also depend on the precisions of this estimate and the test score, which may be group specific. The same also applies to the two-school setting (see Lemma~\ref{lemma:twoschoools_thresholdpolicies}).}
+%
+%
+With two schools, we say that a triple $(\mathbf{\alpha}^*, \mathbf{Y}^*, \mathbf{P})$ constitutes an \textit{equilibrium} if  (i) students' application decisions are optimal conditional on the schools' selection policies and (ii) each school's testing policy and selection policy maximizes its academic merit given student application decisions and the other school's policy. The formal definition is in Electronic Companion~\ref{app:strategic_two_schools}.
+In the next sections, we will analyze the set of policy pairs $(P^1, P^2)$ and characterize the equilibrium behavior of schools.
+
+
+
+
+
+
+
+
+\subsection{Optimal student test-taking behavior}
+\label{sec.testtakingbehavior}
+
+In order to analyze the equilibrium behavior described above and the schools' optimal testing policy, we first analyze the optimal student test-taking behavior, as a response to a fixed testing policy. We begin with the single-school case where the school requires the test, which provides intuition for the key factors in students' strategic behavior. In this setting, students follow a simple threshold strategy: those with sufficiently high skill estimates from their non-test features take the test, while those below the threshold opt out. This threshold structure results in positive assortative behavior: higher-skilled students are more likely to apply and, conditional on applying, more likely to be admitted.
+
+In contrast, introducing a second school fundamentally changes this behavior. In a two-school setting where the more preferred
+school $J_1$ uses a test-based policy while the less preferred
+school $J_2$ uses a test-free policy, we show that the single-threshold structure breaks down. Instead, students may exhibit a non-monotonic test-taking behavior: high-skilled students with high admission probability and
+some low-skilled students with lower outside option take the test and apply, but middle-skilled students may opt out, preferring a guaranteed admission to the less selective school. This breakdown in monotonicity can lead to cases where $J_1$ may attain lower academic merit than the less preferred school $J_2$, if $J_1$ requires the test and $J_2$ does not.
+
+
+
+\subsubsection{Single school: Threshold-based student strategies}
+\label{sec:singleschoolstratetic}
+Consider a setting with a single school that uses the testing policy $P_{\full}$. Students can observe their non-test features $\thetaset_{\subb}$ before assessing their probability of admission, which depends on the other students' behavior, and deciding whether to take the test.
+Despite the complexity introduced, the following result shows that the student's optimal decision follows a threshold-strategy that depends on their skill estimate $\tilde q_{\subb}$ from the non-test features $\thetaset_{\subb}$.
+
+\begin{restatable}{lemma}{lemmathresstrategy}
+\label{lemma.thres.strategy}
+Suppose that the school uses a test-based policy $P_{\full}$. There exists a unique equilibrium $(\alpha^*,Y^*)$, with the following property:  there is a threshold $\underline{q}^ g$ such that  students in group $g$  take the test ($a=1$) if and only if $ \tilde q_{\subb}\geq \underline{q}^ g$,
+where
+\begin{equation}
+    \label{eq.decision_threshold_taking_test}
+    \underline{q}^g = \tilde q_{\full}^* - \Phi^{-1} \left(1 - \frac{c_g}{v}\right) \left ( \frac{\sigma_{gK}^{-2}}{\sigma^{-2} + \sum_{k \in \full} \sigma_{gk}^{-2}}\right)
+\sqrt{\sigma^{2}_{gK} + \frac{1}{\sigma^{-2} + \sum_{k \in \subb} \sigma_{gk}^{-2}} },
+\end{equation}
+and  $\tilde q^*_{\full}$ is the solution to \Cref{eq:singleschoolproblem_main} so that $Y^*(\tilde q_{\full}; P_{\full})= \indic\{ \tilde q_{\full} \geq \tilde q^*_{\full}\}$.
+\end{restatable}
+
+The above result implies positive assortativity in test-taking decisions.
+In contrast to the non-strategic setup with access barriers of Theorem~\ref{thm:threshold_char_without_aa}, where all students had  the same a priori probability of being eligible to apply, the decision to apply now correlates with each individual student's true skill level through the other features (see Figure \ref{fig:simulations_prob_apply_by_skill} in Electronic Companion~\ref{app:synthetic_simulations_strategic_single_school}). These selection effects change the composition of the applicant pool.
+We note that applying does not guarantee admission: conditional on applying, higher true skill (and thus higher skill estimate $\tilde q_{\subb}$)
+increases the admission probability, yet some students will still pay the cost $c_g$, apply, and ultimately be rejected.
+For further characterization of the equilibrium outcomes in this single-school, strategic student setting, see Electronic Companion~\ref{app.singleschool.effectsoftestcosts}.
+
+
+
+\subsubsection{Two schools: Non-monotonic student test-taking behavior}
+\label{sec:twoschoolstrategicbehavior}
+
+The introduction of a second school fundamentally changes student strategic behavior. Consider an asymmetric case where the preferred school $J_1$ is test-based ($P^1_{\full}$) and $J_2$ is test-free ($P^2_{\subb}$); we write $\mathbf P=(P^1_{\full},P^2_{\subb})$.
+This is equivalent to adding a less preferred school to the single-school setting above, and mirrors a common real-world practice in which a more selective school requires a test and a less selective school does not.
+Here, competition---induced by a less-preferred school---breaks monotonic testing behavior of the single-school setting. % from the single-school $P_{\full}$ setting.
+
+
+\begin{restatable}{proposition}{thmtwoschools}
+\label{thm.twoschools}
+  Consider the setting with two schools defined above. Then, there exists a unique equilibrium $(\alpha^*, \mathbf{Y}^*)$ with the following properties:
+  \begin{itemize}
+      \item [(i)] School $J_i$'s selection policy $Y^*_i$ takes a threshold form: $Y^*_i (\tilde q_{S_i}; \mathbf{P})= \indic\{\tilde q_{S_i} \geq \tilde q^*_{i, S_i}\}$, where $\tilde q^*_{i, S_i}$ is  the admission threshold of school $i$ using feature set $S_i$.
+
+      \item[(ii)] Students in group $g$ with preliminary skill estimate $\tilde q_{\subb}$ take the test and apply to school $J_1$,  if and only if one of the following conditions holds:
+      \begin{itemize}
+          \item [1)]  either  $\tilde q^*_{2, \subb} > \tilde q_{\subb} \geq \underline{q}_{l}^g $ where
+            \begin{equation}
+            \label{eq.q_l_thres}
+    \underline{q}_{l}^g = \tilde q_{1, \full}^* - \Phi^{-1} \left(1 - \frac{c_g}{v_1}\right) \left ( \frac{\sigma_{gK}^{-2}}{\sigma^{-2} + \sum_{k \in \full} \sigma_{gk}^{-2}}\right)
+\sqrt{\sigma^{2}_{gK} + \frac{1}{\sigma^{-2} + \sum_{k \in \subb} \sigma_{gk}^{-2}} };
+\end{equation}
+
+\item[2)] or $\tilde q_{\subb} \geq \max\{\underline{q}_{h}^g , \tilde q^*_{2, \subb}\}$, where
+\begin{equation}
+\label{eq.q_h_thres}
+    \underline{q}_{h}^g = \tilde q_{1, \full}^* - \Phi^{-1} \left(1 - \frac{c_g}{v_1-v_2}\right) \left ( \frac{\sigma_{gK}^{-2}}{\sigma^{-2} + \sum_{k \in \full} \sigma_{gk}^{-2}}\right)
+\sqrt{\sigma^{2}_{gK} + \frac{1}{\sigma^{-2} + \sum_{k \in \subb} \sigma_{gk}^{-2}} }.
+\end{equation}
+      \end{itemize}
+
+     Furthermore, $\underline{q}_{l}^g < \underline{q}_{h}^g $ for both groups $g \in \{A,B\}$.
+
+
+\normalsize
+  \end{itemize}
+\end{restatable}
+
+
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=8cm,
+    height=6cm,
+    axis lines=middle,
+    xmin=-4, xmax=4,
+    ymin=0, ymax=0.45,
+    xlabel={$\tilde q_{\subb}$},
+    xtick={-0.3, 0.2, 0.9},
+   xticklabels={$\underline{q}^g_l$, $~~~\tilde q^*_{2, \subb}$, $~~~~~\underline{q}^g_h$},
+    ytick=\empty,
+    domain=-4:4,
+    samples=100,
+    axis y line=none,
+    smooth,
+    ticklabel style = {font=\small}
+    ]
+    \addplot [fill=yellow!30, draw=none, domain=-0.3:10, area legend] {gauss(0,1)} \closedcycle;
+
+  % Intersection area
+    \addplot [fill=bluebell!50, draw=none, domain=-0.7:10, area legend] {min(gauss(0,1),gauss(-0.9,0.97))} \closedcycle;
+
+
+  \addplot [fill=bluebell!50, draw=none, domain=0.2:0.9, area legend] {gauss(0,1)} \closedcycle;
+
+    \addplot [fill=white, draw=none, domain=-0.75:0.2, area legend] {gauss(-0.9,0.97))} \closedcycle;
+
+    \draw [dashed] (axis cs: 0.2,0) -- (axis cs: 0.2, 0.39);
+
+    \draw [dashed] (axis cs: -0.3,0) -- (axis cs: -0.3, 0.38);
+
+    \draw [dashed] (axis cs: 0.9,0) -- (axis cs: 0.9, 0.26);
+      \addplot [black, very thick] {gauss(0,1)};
+  \end{axis}
+\end{tikzpicture}
+~
+\begin{tikzpicture}
+  \begin{axis}[
+    width=8cm,
+    height=6cm,
+    axis lines=middle,
+    xmin=-4, xmax=4,
+    ymin=0, ymax=0.45,
+    xlabel={$\tilde q_{\subb}$},
+    xtick={-0.3, 0.15, 0.7},
+   xticklabels={$\underline{q}^g_l$,  $\underline{q}^g_h$, $~~~~~\tilde q^*_{2, \subb}$},
+    ytick=\empty,
+    domain=-4:4,
+    samples=100,
+    axis y line=none,
+    smooth,
+    ticklabel style = {font=\small}
+    ]
+
+
+
+    \addplot [fill=yellow!30, draw=none, domain=-0.3:10, area legend] {gauss(0,1)} \closedcycle;
+     \addlegendentry{$J_1$}
+
+
+  % Intersection area
+    \addplot [fill=bluebell!50, draw=none, domain=0.7:10, area legend] {min(gauss(0,1),gauss(-0.9,0.97))} \closedcycle;
+     \addlegendentry{$J_2$}
+
+
+
+
+    \addplot [fill=white, draw=none, domain=-0.75:0.7, area legend] {gauss(-0.9,0.97))} \closedcycle;
+
+
+
+
+    \draw [dashed] (axis cs: 0.15,0) -- (axis cs: 0.15, 0.40);
+
+    \draw [dashed] (axis cs: -0.3,0) -- (axis cs: -0.3, 0.38);
+
+    \draw [dashed] (axis cs: 0.7,0) -- (axis cs: 0.7, 0.31);
+      \addplot [black, very thick] {gauss(0,1)};
+  \end{axis}
+\end{tikzpicture}
+\caption{Students in group $g$ enrolled at schools $J_1$ and $J_2$. The left and right panel of the figure correspond to $\tilde q^*_{2, \textrm{SUB}} < \underline{q}_h^g$ and $\tilde q^*_{2,\textrm{SUB}} > \underline{q}_h^g$, respectively.
+In both cases, all students apply to $J_2$ but only the students with skill estimates above the cutoff $\tilde q^*_{2, \textrm{SUB}}$ are admitted. Among those students only the mass of students in the purple-shaded area will accept $J_2$'s offer, since a fraction of the students admitted to $J_2$ also applied and got admitted to $J_1$ (yellow-shaded area). However, as the left panel illustrates for $\tilde q^*_{2, \textrm{SUB}} < \underline{q}_h^g$, not all students who apply to $J_2$ necessarily apply to $J_1$ as well; indeed, the admitted students with $\tilde q^*_{2, \textrm{SUB}} \leq \tilde q_{\textrm{SUB}} <\underline{q}^g_h$ have applied only to $J_2$.
+Furthermore, observe that the students who successfully apply to $J_1$ (yellow-shaded area) are not always characterized by higher skill estimates than the admitted students at $J_2$ (purple-shaded area). Finally, in both panels, all students with $\underline{q}_l^g < \tilde q^*_{2, \textrm{SUB}}$ applied to $J_1$, however only the yellow-shaded mass is admitted.}
+\label{fig.merit.twoschools.strategic}
+\end{figure}
+
+
+The above theorem establishes several interesting equilibrium properties. Even this two-school setting induces complex student strategic behavior.
+\Cref{fig.merit.twoschools.strategic} illustrates the student test-taking behavior, described in Part (ii) above.  In particular, student test-taking behavior is not necessarily characterized by a single threshold in their skill estimates $\tilde q_{\subb}$. Some students with lower skill estimates $\tilde q_{\subb}$ (who, after observing the first $K-1$ features, know they will not be admitted to the test-free school $J_2$) take the test to reattain a chance of admission to school $J_1$, {while other students with higher skill estimates $\tilde q_{\subb}$ may choose not to take the test, preferring the safer option of $J_2$.}
+
+This non-monotonicity in application behavior can generate a mismatch between student skill and school ranking. Although schools continue to use admission thresholds that are increasing in their ranking (Part (i)), the non-monotonic student responses (Part (ii)) break the positive assortativeness that matching models typically exhibit~\citep{chade2017sorting}. % .
+In Proposition~\ref{thm.twoschools.full} (Parts (iii)-(iv)), we show that, as a result, $J_1$ may, in some cases, attain lower academic merit than the less-preferred school $J_2$. Such a reversal cannot occur when both schools adopt the same testing policy---then, each student either applies to both schools or neither, eliminating the possibility of differential self-selection. We further show that heterogeneous testing policies across schools may also lead to differing levels of diversity, although our analysis does not preclude both schools experiencing low diversity.
+
+
+
+\subsection{Equilibrium testing policy outcomes}
+In light of the complex dynamics in the student test-taking behavior, we consider whether \textit{schools} themselves are incentivized to require the test.
+We return to the general setting where the two schools $J_1$ and $J_2$ can each choose their testing policy and optimize for the academic merit of the student body.\footnote{{For a partial characterization of school behavior with respect to  diversity, see Proposition~\ref{prop.strategic.twoschool.diversity}.}} Now, a school's optimal testing policy may depend on its competitor's requirements. For example, a school may be incentivized to drop the test if most other schools have already done so, as fewer students would be taking the test.
+Conversely, if all other schools require the test, then many students may take it regardless, potentially incentivizing the school to require the test as well. Section \ref{ssec:two_schools_strategic_theory}
+characterizes the schools' equilibrium policies. Section
+\ref{ssec:simulation_strategic_schools} highlights, through simulations, settings in which one school's policy depends on the other school's decision.
+
+
+
+\subsubsection{Characterization of equilibrium policies.}
+\label{ssec:two_schools_strategic_theory}
+
+
+{Theorem \ref{thm.twoschool.strategic.equilibria} analyzes the set of policy pairs $(P^1, P^2)$ and identifies the conditions under which $(P_{\subb}, P_{\full})$, $(P_{\full}, P_{\subb})$, and $(P_{\full}, P_{\full})$ are equilibrium policies.} Recall that, at equilibrium, $\tilde{q}^*_{i, S_i}$ denotes the optimal admission threshold of school $i$ using feature set $S_i$.
+
+
+
+
+\begin{restatable}[Academic merit and two-school equilibria with strategic students]{theorem}{thmtwoschoolsstrategicequlibria}
+\label{thm.twoschool.strategic.equilibria}
+Suppose that each school chooses a policy to maximize academic merit.
+ Under school policies $\mathbf{P}$, let $M_g (\mathbf{P})$ denote the mass of test-taking students from group $g$ and let $L^i_g (\mathbf{P})$ denote the academic merit of admitted students from group $g$ to school $J_i$ (see Electronic Companion~\Cref{app:strategic_two_schools} for definitions).
+ Define also
+ $$K_g (q)  \triangleq 1- \Phi\left(\frac{q - \mu}{\sigma \sqrt{\frac{\sum_{k\in \subb} \sigma_{gk}^{-2}}{\sigma^{-2} + \sum_{k \in \subb} \sigma_{gk}^{-2}} }}\right)$$ to be the mass in group $g$ with skill estimates $\tilde q_{\subb} \geq q$.
+ Then, the following hold:
+\begin{itemize}
+    \item[(i)]  Policy $(P_{\subb}, P_{\full})$ is an equilibrium if and only if
+     \begin{equation}
+    \label{eq.condition.drop.twoschools.strategic.J1}
+       c_g \geq \hat{c}_g \mathrm{~and~} M_g ({P}_{\full}, P_{\full}) <
+       K_g (\tilde q^*_{1, \subb})
+        \end{equation}
+        for exactly one group $g \in \{A, B\}$ and some threshold $\hat{c}_g >0$, while for $g' \neq g$, it holds
+            \begin{equation}
+                \label{eq.sub.full.J2.cond1}
+                M_{g'} (P_{\subb}, P_{\full}) \geq C_2
+            \end{equation}
+\begin{equation}
+\label{eq.sub.full.J2.cond2}
+\mathrm{~~~\textit{and}~~~~}
+\pi_{g'}L^2_{g'} (P_{\subb}, P_{\full}) >  \pi_A L^2_{A} (P_{\subb}, P_{\subb}) + \pi_B L^2_{B} (P_{\subb}, P_{\subb}).
+\end{equation}
+
+
+\item[(ii)] Policy $(P_{\full}, P_{\subb})$ is an equilibrium if and only if
+\begin{equation}
+\label{eq.condition.drop.twoschools.strategic.J2.1} \begin{split}
+       & c_g \geq  \hat{c}'_g,  ~~~
+              M_g ({P}_{\full}, P_{\full}) < K_g (\tilde q^*_{2, \subb})
+                    \end{split}
+        \end{equation}
+\begin{equation}
+\label{eq.condition.drop.twoschools.strategic.J2.2} \begin{split}
+             & \mathrm{~~~\textit{and either}~}  M_g ({P}_{\full}, P_{\subb})  > K_g (\tilde q^*_{1, \subb})
+                \mathrm{~~\textit{or}~~} c_g \leq\hat{c}_g'',
+        \end{split}
+        \end{equation}
+        for exactly one group $g \in \{A, B\}$ and  thresholds $ \hat{c}_g'' > \hat{c}_g'>0$.
+
+
+    \item[(iii)] There exist functions $\underline{c}_A, \underline{c}_B: \mathbb{R}_+ \rightarrow \mathbb{R}_+$
+    such that policy $(P_{\full}, P_{\full})$ is an equilibrium if and only if $c_A \leq \underline{c}_A (c_B)$ and $c_B \leq \underline{c}_B (c_A)$.
+\end{itemize}
+\end{restatable}
+
+
+
+{Intuitively, both schools want to maintain the testing requirement when test costs are sufficiently low for both groups (Part (iii)). However, there exist regimes where one school wants to drop the test. Part (i) shows that the more preferred school, $J_1$, wants to drop the test when test costs of one group $g$ are sufficiently high and an insufficient number of group $g$ students take the test. Dropping the test helps $J_1$ attract more students from group $g$ in a way that increases the average skill of its applicant pool, thanks to group $g$. At the same time, there are extreme scenarios school $J_2$ might prefer to keep the test, even if this implies admitting zero students from group $g$; however, our simulations suggest that this is a rare case and school $J_2$ is better off following $J_1$'s lead and dropping the test. Part (ii) shows that  $J_1$ might wish to maintain its test requirement if enough students from both groups take the test. As the more preferred school, $J_1$ has the advantage to keep the test, whereas the less preferred school, $J_2$, must drop the test to attract students from the group with higher costs. Typically, this equilibrium arises if one group faces moderately high test costs.} Note that the theorem does not rule out $(P_{\subb}, P_{\subb})$ being an equilibrium---the conditions are not mutually exclusive, and our analysis does not imply that the equilibrium is unique. Further, in simulations, we find settings in which $(P_{\subb}, P_{\subb})$ is the equilibrium (Figure \ref{fig:twoschool_strat_cost2.0}).
+
+
+
+\subsubsection{Simulation results}
+\label{ssec:simulation_strategic_schools}
+We simulate the resulting admission outcomes decisions when there are two schools vying for the same student population and highlight two different settings where one school's optimal testing decision depends on the other school's decision.
+The simulation closely resembles that of the single school, strategic student setting outlined in Appendix \ref{app:synthetic_simulations_strategic_single_school}; for details, see Appendix \ref{app:synthetic_simulations_strategic_two_schools}.
+
+
+\begin{figure*}[tb]
+\centering
+\begin{subfigure}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{second_round_MS/figures_ms_2025_dec_revision/avg_skill_heatmap_STUDENT_TEST_COST=0.5_UTILITY_a=3_UTILITY_b=2_sems.png}
+    \caption{\small \centering Test cost $c_A = c_B = 0.5$. Unique equilibrium is $(P^1_{\full}, P^2_{\full})$.
+    }
+    \label{fig:twoschool_strat_cost0.5}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.49\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{second_round_MS/figures_ms_2025_dec_revision/avg_skill_heatmap_STUDENT_TEST_COST=2_UTILITY_a=3_UTILITY_b=2_sems.png}
+    \caption{\small \centering Test cost $c_A = c_B = 2.0$. Unique equilibrium is $(P^1_{\subb}, P^2_{\subb})$.
+    }
+    \label{fig:twoschool_strat_cost2.0}
+\end{subfigure}
+
+\caption{Average admitted skill of the resulting student body, in $J_1$ (preferred school) and $J_2$ (less preferred school), as a function of $J_1$ and $J_2$ testing policies. {Error bars are shown for 2 standard errors.} In both settings, students in both groups have utilities $v_1=3$ and $v_2=2$. Figure \ref{fig:twoschool_strat_cost0.5} corresponds to low test cost ($c_A=c_B=0.5$) and Figure \ref{fig:twoschool_strat_cost2.0} corresponds to high test cost ($c_A=c_B=2.0$). See Appendix~\ref{app:synthetic_simulations_strategic_two_schools} for full parameter details. {In Figure \ref{fig:twoschool_strat_cost2.0}, no students apply to $J_2$ under policy pair $(P^1_{\subb}, P^2_{\full})$.}}
+\label{fig:two_school_strategic_heatmap}
+\end{figure*}
+
+
+
+Figure \ref{fig:two_school_strategic_heatmap} shows the academic merit for schools $J_1$ and $J_2$ under various policy pairs $(P^1, P^2)$.
+{Figure \ref{fig:twoschool_strat_cost0.5} demonstrates a low test cost setting where the optimal policy of both the preferred school, $J_1$, and the less preferred school, $J_2$, is to require the test, regardless of the other school's policy.
+By contrast, \Cref{fig:twoschool_strat_cost2.0} demonstrates a high test cost setting where $J_1$'s optimal policy depends on $J_2$'s policy. In this setting, $J_1$'s optimal policy is to require the test when $J_2$ requires the test and to drop the test otherwise. $J_2$'s optimal policy is to drop the test, regardless of $J_1$'s policy.}
+Notably, in both settings, {when the preferred school $J_1$ requires the test, it benefits when the other school $J_2$ also requires it.}
+
+
+
+
+{The results in the two settings in Figure \ref{fig:two_school_strategic_heatmap} parallel the results in the non-strategic, single school setting, albeit with more complex behavior. In the low test cost setting of Figure \ref{fig:twoschool_strat_cost0.5},
+if both schools aim to maximize academic merit, then the equilibrium strategy is $(P^1_{\full}, P^2_{\full})$. This policy pair also ensures the optimal academic merit for each school, out of the four possible policy pairs. This setting parallels the non-strategic setting where students have a high level of access $\gamma_g$, and thus dropping the test does not significantly increase the number of students who apply. Conversely, in the high test cost setting of Figure \ref{fig:twoschool_strat_cost2.0}, the unique equilibrium strategy is $(P^1_{\subb}, P^2_{\subb})$, which parallels the non-strategic setting where students have low level of test access $\gamma_g$ and so dropping the test increases the number of students who apply. However, the strategic components induce more complex behavior. The preferred school, $J_1$, receives the highest average admitted skill under the policy pair $(P^1_{\full}, P^2_{\full})$, but the less preferred school, $J_2$, is incentivized to deviate and drop the test. Similarly, $J_2$ receives the highest average admitted skill under the policy pair $(P^1_{\full}, P^2_{\subb})$, when few students apply to $J_1$ and so $J_2$ has a larger pool of students who will enroll in $J_2$ if admitted, but $J_1$ is incentivized to deviate and drop the test. Also note that, if $J_1$ drops the test, then $J_2$ under the $P^2_{\full}$ policy has no applicants and so must also drop the test.}
+
+
+
+The high cost setting of Figure \ref{fig:twoschool_strat_cost2.0}
+depicts a setting where the preferred school $J_1$'s best response can depend on the less preferred school's policy.
+Here, the equilibrium strategy is $(P^1_{\subb}, P^2_{\subb})$. While $J_2$'s best response is to choose $P^2_{\subb}$ regardless of $J_1$'s policy, $J_1$'s best response varies: if $J_2$ chooses $P^2_{\full}$, then $J_1$'s best response is $P^1_{\full}$ and if $J_2$ chooses $P^2_{\subb}$, $J_1$'s best response is $P^1_{\subb}$.
+Intuitively, this occurs because the cost of the test is high enough relative to the students' valuation for $J_1$; thus, many students do not take the test solely for $J_1$ if they have the option of applying to $J_2$ without incurring test costs, but would take the test if both schools required it.
+
+
+For the settings in which one school's optimal testing decision is independent of their competitor's strategy, the change in academic merit due to the other school's testing policy is not large enough to change the optimal testing behavior.
+
+Together, these simulations demonstrate that multiple schools environments can significantly influence each school's optimal testing policy. Schools cannot determine its testing strategy in isolation without considering other schools, even in the simplified setting in which all students prefer one school over the other.

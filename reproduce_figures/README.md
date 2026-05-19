@@ -1,49 +1,62 @@
 # Figure reproduction
 
-This folder contains the code-only reproduction wrapper for the paper figures in
-arXiv:2010.04396. Generated figures, staged caches, and large migrated CSV
-inputs are intentionally not part of the code commit.
+This folder contains the wrapper code needed to regenerate the paper figures. Generated figures, intermediate workspaces, and local simulation caches are intentionally ignored.
 
-Run the ordered figure pipeline from the repository root:
+## Reproduce from an existing local cache
 
-```bash
-python reproduce_figures/scripts/reproduce_all_figures.py --cores 32
-```
-
-For a cache-first server run that avoids force-rerunning the very heavy
-two-school Figure 6/14 simulations, do not pass `--rerun-simulations`:
+Run from the repository root:
 
 ```bash
-REPRO_CORES=32 python reproduce_figures/scripts/reproduce_arxiv_2010_04396_figures.py \
-  --cores 32 \
-  --allow-heavy \
-  --generated-root reproduce_figures/workspace/server_cache_first/generated \
-  --cache-root reproduce_figures/workspace/server_cache_first/cache \
-  --output-root reproduce_figures/outputs/arxiv_2010_04396_server_cache_first
+python reproduce_figures/scripts/reproduce_all_figures.py --cores 4
 ```
 
-For a cache-only/local smoke run, use `--skip-generators` and explicit local
-roots, for example:
+By default this reads the local combined cache at:
+
+```text
+reproduce_figures/example_simulation_cache
+```
+
+and writes the flat figure bundle to:
+
+```text
+reproduce_figures/outputs/paper_figures
+```
+
+The cache, workspace, and output folders are ignored by git.
+
+## Ignored cache layout
+
+The ignored local example cache combines the simulation outputs needed by the plotting wrappers:
+
+- `mult_schools_simulations_policy_testing/`: two-school strategic heatmaps.
+- `cost_model_single_school/`: strategic single-school apply-by-skill panel.
+- `calibrated_theop_mult_runs/`: calibrated THEOP synthetic-student simulations.
+- `cost_model_single_school_fix_A1_equal_B1/`: strategic single-school cost and variance sweep.
+- `cost_model_single_school_cost_sweep/`: strategic cost-sweep metrics.
+- `cost_model_single_school_drop_test_heatmaps/`: drop-test heatmap metrics.
+- `legacy_nonstrategic/`: migrated legacy nonstrategic and unaware/AA caches.
+
+## One-command from-scratch regeneration
+
+To rebuild the ignored example cache and final plots on a server, run from the repository root:
 
 ```bash
-python reproduce_figures/scripts/reproduce_arxiv_2010_04396_figures.py \
-  --cores 4 \
-  --allow-heavy \
-  --skip-generators \
-  --generated-root reproduce_figures/workspace/cache_only_4cores/generated \
-  --cache-root reproduce_figures/workspace/cache_only_4cores/cache \
-  --output-root reproduce_figures/outputs/arxiv_2010_04396_cache_only_4cores
+CORES=32 ./reproduce_figures/reproduce_paper_figures.sh
 ```
 
-Current cache-backed status:
+The shell script writes regenerated cache files into ignored `reproduce_figures/example_simulation_cache`, generated intermediates under ignored `reproduce_figures/workspace/generated`, and the final bundle under ignored `reproduce_figures/outputs/paper_figures`.
 
-- Reproduced: Figures 1, 2, 3, 4, 5, 6, 9, 10, 14, and 15b.
-- Still data/heavy blocked: Figures 7, 8, 11, 12, 13, and 15a.
+Useful override for a custom Python environment:
 
-Layout:
+```bash
+PYTHON=/path/to/python CORES=32 ./reproduce_figures/reproduce_paper_figures.sh
+```
+
+## Layout
 
 - `scripts/`: runnable wrappers and figure-specific replot/rerun entrypoints.
 - `legacy_code/`: minimal legacy plotting helpers needed by the wrappers.
-- `inputs/`: expected location for migrated compact inputs and fit parameters.
-- `workspace/`: generated intermediates and staged caches, ignored locally.
-- `outputs/`: flat copied figure bundle, ignored locally.
+- `paper_sources/`: TeX snippets for the two paper-native figures.
+- `example_simulation_cache/`: ignored local combined cache used by the one-command reproduction path.
+- `workspace/`: ignored generated intermediates.
+- `outputs/`: ignored flat figure bundles.

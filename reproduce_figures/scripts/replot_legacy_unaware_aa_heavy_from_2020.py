@@ -137,6 +137,14 @@ def build_run_parameters(args: argparse.Namespace, tau: float) -> dict:
 
 
 def cache_path(args: argparse.Namespace) -> Path:
+    path = args.cache_dir / f"{LABEL}_metrics.csv"
+    gz_path = path.with_suffix(path.suffix + ".gz")
+    if gz_path.exists() and not path.exists():
+        return gz_path
+    return path
+
+
+def writable_cache_path(args: argparse.Namespace) -> Path:
     return args.cache_dir / f"{LABEL}_metrics.csv"
 
 
@@ -170,7 +178,7 @@ def generate_pareto_metrics(args: argparse.Namespace, pipeline) -> pd.DataFrame:
 
     dff = pd.concat(rows, ignore_index=True)
     args.cache_dir.mkdir(parents=True, exist_ok=True)
-    dff.to_csv(cache_path(args), index=False)
+    dff.to_csv(writable_cache_path(args), index=False)
     return dff
 
 

@@ -1,0 +1,131 @@
+\section{Intuition: The role of differential informativeness}
+\label{sec:estimatesintuition}
+
+
+\begin{figure}
+	\centering
+	\resizebox{0.7\columnwidth}{!}{
+	\begin{tikzpicture}
+		\begin{axis}[
+			no markers, domain=0:10, samples=100,
+			axis lines*=left, xlabel=$\tilde{q}$, ylabel=\empty,
+			axis y line=none,
+			every axis x label/.style={at=(current axis.right of origin),anchor=west},
+			height=5cm, width=12cm,
+			xtick=\empty, ytick=\empty,
+			enlargelimits=false, clip=false, axis on top,
+			grid = major,
+			legend style={at={(0.75,0.8)},anchor=west, font=\small},
+			legend cell align={left}
+			]
+
+			\addlegendimage{line width=0.3mm, dashed, color=black}
+			\addlegendentry{$q$}
+			\addlegendimage{line width=0.3mm,  color=green!50!black}
+			\addlegendentry{$\tilde q \mid A, P_S$}
+			\addlegendimage{line width=0.3mm,  color=magenta!80!black}
+			\addlegendentry{$\tilde q \mid B, P_S$}
+
+
+			\addplot [fill=powderblue!70, draw=none,domain=6.5:10, name path =D] {gauss(5,1)} \closedcycle;
+			\addplot [very thick,black, dashed, name path=C] {gauss(5,1.5)};
+			\addplot [very thick,green!50!black, name path=A] {gauss(5,1)};
+			\addplot [very thick,magenta!80!black, name path=B] {gauss(5,0.7)};
+
+			\node[below] at (axis cs:6.5, 0)  {$\tilde{q}^*_{S}$};
+			\node[below] at (axis cs:5, 0)  {$\mu$};
+
+
+		\end{axis}
+	\end{tikzpicture}
+	}
+	\caption{The distribution of skill estimates $\tilde q$ at an aggregate level for each group, as it depends on the \textit{informativeness} of the features. When the application components are more precise for one group (group $A$, in green), the variance in the skill estimates of their group is \textit{higher}---there is more signal for individuals to demonstrate that their skill is different than the mean. Then, more group $A$ students have high skill estimates above threshold $\tilde q^*_S$, and thus more are admitted. This effect occurs even though the true skill $q$ distribution is identical across groups. If dropping the test causes such differential informativeness, then doing so may worsen both fairness and academic merit (estimated skill of admitted students). Figure~\ref{fig:2destimates} illustrates how the differential informativeness interacts with \textit{disparate access}, due to which dropping test scores may improve all objectives.
+}
+	\label{fig:normals_intuition}
+\end{figure}
+
+
+
+
+We begin our analysis in Section~\ref{sec:skillestimation} by deriving how a Bayesian-optimal school estimates the students' skill level.
+Then,
+we preview our main results, illustrating how the relationship between skill estimates and true skills of the applicant pool depends on the informativeness  of features and the access barriers, with implications for how admissions differ by group.
+
+\subsection{School's optimal Bayesian estimation procedure}
+
+\label{sec:skillestimation}
+
+Our Bayesian school---with knowledge of the model's feature noise means and variances---observes each student's features and group membership and estimates their expected skill level, using properties of Normal distributions. Repeating this process for all applicants induces the following distribution of skill level estimates for each group.
+
+\begin{restatable}[Estimated skill]{lemma}{lemperceivedskilldisttribution}
+	\label{lemma:perceived_skill_distribution}
+	Consider a school that uses feature set $S \subseteq \{1, \dots, K\}$ for each applicant.
+ {Then, the perceived skill of an applicant in group $g\in\{A,B\}$ with feature values $\thetaset = (\theta_k)_{k\in S}$ is:}
+ \begin{equation}
+ \label{eq:skill_estimate}
+	\tilde q(\thetaset, g) =
+	\frac{\mu \sigma^{-2} + \sum_{{k\in S}}(\theta_{k} - \mu_{gk})\sigma_{gk}^{-2}} {\sigma^{-2} +\sum_{{k\in S}} \sigma_{gk}^{-2}}.
+ \end{equation}
+Further, the skill level estimates for students in group $g$ are Normally distributed:
+\begin{equation}
+\label{eq:estimate_distribution_group}
+	{\tilde q \mid  g, P_{S}} \sim \mathcal{N}  \left( \mu, \sigma^{2}\left[\frac{\sum_{{k\in S}} \sigma_{gk}^{-2}  }{\sigma^{-2} +\sum_{{k\in S}} \sigma_{gk}^{-2}}\right]\right).
+\end{equation}
+\end{restatable}
+
+
+
+As \Cref{eq:skill_estimate} shows,\footnote{Note that \Cref{eq:skill_estimate} is a direct generalization of \cite{phelps1972statistical} from a single to $K$ features.} when the school estimates the skill level $\tilde q (\thetaset, g)$ of an individual and knows the skill and feature noise distributions, it perfectly cancels out the mean bias terms $\mu_{gk}$ such that they do not affect estimation.\footnote{\cite{berkeleyreport}: ``test scores are considered in the context of comprehensive review, which in effect re-scales the scores to help mitigate between-group differences.''} {The school also re-weights each feature $\theta_k$ proportionately to the relative informativeness of this feature for group $g$:  the less informative a feature is for a group (smaller \textit{precision} $\sigma_{gk}^{-2}$), the less it contributes to estimates. Thus, due to differences in $\sigma_{gk}^{-2}$ across groups, two students from different social groups with the same features $\thetaset$ are evaluated differently. However, even in this idealized scenario, the school cannot fully correct for the variance terms $\sigma^2_{gk}$;
+two students with same skill $q$ but in different groups have different skill estimates in expectation.}
+
+These individual estimation effects accumulate at the group level (\Cref{eq:estimate_distribution_group}) {and drive our results on disparities}. The school {knows} that $q \sim \mathcal{N}(\mu,\sigma^2)$ is identically distributed across social groups. However, as illustrated in Figure~\ref{fig:normals_intuition}, the distribution of its skill estimates ${\tilde q \mid  g, P_{S}}$
+can differ across groups. For each group, the skill estimates are regularized toward the mean skill level $\mu$. The regularization strength depends on the total precision $\sum_{{k\in S}} \sigma_{gk}^{-2}$: the larger the total precision for a group is (or the more informative its features are), the higher the variance in the estimated skills for that group is.
+In Figure~\ref{fig:normals_intuition}, group $A$ has larger total precision and for any value $\bar q>\mu$, there is a larger mass of students from group $A$ than $B$ with estimated skill higher than $\bar q$. Thus a school with capacity $C<\frac{1}{2}$ admits more students from group $A$.
+
+
+
+
+\subsection{Intuition for the impact of admissions policy}
+\label{sec:intuition}
+\begin{figure*}[t]
+	\begin{subfigure}[b]{0.325\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{plots/simulations_2d_skillestimates_nobudget_2dskilldist_testbased.pdf}
+		\caption{\small With test, no barriers \normalsize}
+		\label{fig:2dcontour_ideal}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.325\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{plots/simulations_2d_skillestimates_barrier_2dskilldist_testbased.pdf}
+		\caption{\small With test, inaccessible to some \normalsize}
+		\label{fig:2dcontour_barriertest}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.325\textwidth}
+		\centering
+		\includegraphics[width=1\linewidth]{plots/simulations_2d_skillestimates_barrier_2dskilldist_testfree.pdf}
+		\caption{\small Without test \normalsize}
+		\label{fig:2dcontour_barrierfree}
+	\end{subfigure}
+
+	\caption{Skill vs estimate joint distribution for each group.  Above and to the right of each joint distribution we plot the corresponding marginal distributions---e.g., the plot on the right of each joint distribution corresponds to the true skill distribution, which is equal across groups. The dashed diagonal lines correspond to perfect estimation. Figure~\ref{fig:2dcontour_ideal} represents a world without access barriers and when the features are approximately equally informative across groups. Figure~\ref{fig:2dcontour_barriertest} illustrates the consequences of requiring the test when group B (in pink) has access barriers: fewer can apply and so can be admitted. Figure~\ref{fig:2dcontour_barrierfree} illustrates potential consequences of dropping the test: the school may be unable to distinguish among group B applicants, leading to worse estimates (rotated away from diagonal) and fewer admitted from that group. Full parameters
+    are in Electronic Companion~\ref{appsec:simparams}.
+    }
+
+
+	\label{fig:2destimates}
+\end{figure*}
+
+Before proceeding to our main results, we first illustrate our primary insight regarding the trade-off between informativeness and the applicant pool size.
+In Figure~\ref{fig:2destimates}, each sub-figure shows, for one scenario, the joint distribution between true skill $q$ and the corresponding skill estimates $\tilde q$ for each group, along with the respective marginal distributions.
+%
+Since both groups have identical true skill distributions, the joint distributions would  \textit{ideally} be identical for the two groups (and perfectly aligned along the diagonal) and group $B$ would comprise a proportion $\pi$ of the admitted class.
+
+
+Consider the case where the potentially dropped feature (the ``test score") is equally informative for both groups, whereas the remaining features are more informative for group $A$.
+%
+Figure~\ref{fig:2dcontour_ideal} illustrates the scenario when there are no access barriers to the test.  Due to the differential informativeness induced by the other features, (slightly) more group $A$ students are admitted: the college can better estimate their true skill, as illustrated by the group $A$ joint distribution being closer to the diagonal.
+ Figure~\ref{fig:2dcontour_barriertest} illustrates the consequences of requiring test scores in the presence of unequal access levels ($\gamma_A=1$ and $\gamma_B=\frac{2}{3}$). \textit{Among those who apply}, the college can estimate their true skill as well as it could in Figure~\ref{fig:2dcontour_ideal}. However, fewer group $B$ students can apply, as indicated by the smaller marginal count histogram, and so fewer are admitted.
+%
+Figure~\ref{fig:2dcontour_barrierfree} illustrates a scenario where the school removes the test score. Estimates for both groups are worse, as reflected in the joint distributions being further from the perfect estimation diagonal. However, skill estimates for group $B$ students are especially degraded as their other features may be less informative, and so they make up a smaller proportion of the admitted class. Whether the effect in Figure~\ref{fig:2dcontour_barriertest} or \ref{fig:2dcontour_barrierfree} dominates depends on the parameter context.

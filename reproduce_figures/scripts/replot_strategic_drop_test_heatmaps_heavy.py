@@ -10,6 +10,7 @@ diversity and academic merit after dropping the test.
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ProcessPoolExecutor, as_completed
 import os
 import random
 import site
@@ -49,6 +50,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cost-step", type=float, default=0.25)
     parser.add_argument("--b1-vars", default="1,2,3,4")
     parser.add_argument("--base-seed", type=int, default=20280812)
+    parser.add_argument("--workers", type=int, default=1, help="Parallel worker processes over B-variance/run jobs.")
     parser.add_argument("--no-rerun-missing", action="store_true")
     parser.add_argument("--force-rerun", action="store_true")
     return parser.parse_args()
@@ -103,9 +105,9 @@ def drop_test_parameters(args: argparse.Namespace, b1_var: float) -> dict:
     return params
 
 
-def school_metric(schools_df: pd.DataFrame, column: str) -> float:
+def school_metric(schools_df: pd.DataFrame, column: str, default: float = 0.0) -> float:
     if column not in schools_df:
-        raise ValueError(f"Missing {column} in schools_df")
+        return default
     return float(schools_df[column].iloc[0])
 
 
@@ -113,39 +115,52 @@ def cost_grid(args: argparse.Namespace) -> np.ndarray:
     return np.arange(args.min_cost_b, args.max_cost_b + 0.5 * args.cost_step, args.cost_step).round(2)
 
 
-def run_simulations(args: argparse.Namespace) -> pd.DataFrame:
+def run_drop_test_task(task: tuple[argparse.Namespace, int, float, int, list[float]]) -> list[dict[str, float | int]]:
+    args, b1_index, b1_var, run, costs = task
     pipeline = import_pipeline()
-    rows = []
+    rows: list[dict[str, float | int]] = []
+    drop_seed = args.base_seed + b1_index * 100000 + run * 1000
+    random.seed(drop_seed)
+    np.random.seed(drop_seed)
+    _, drop_schools_df, _ = pipeline.pipeline(drop_test_parameters(args, b1_var))
+    drop_frac_b = school_metric(drop_schools_df, "frac_B")
+    drop_avg_skill = school_metric(drop_schools_df, "avgadmittedskill")
+
+    for cost_index, cost_b in enumerate(costs):
+        seed = drop_seed + cost_index + 1
+        random.seed(seed)
+        np.random.seed(seed)
+        _, schools_df, _ = pipeline.pipeline(base_parameters(args, b1_var, float(cost_b)))
+        rows.append(
+            {
+                "b1_var": float(b1_var),
+                "cost_b": float(cost_b),
+                "run": run,
+                "frac_B": school_metric(schools_df, "frac_B"),
+                "avgadmittedskill": school_metric(schools_df, "avgadmittedskill"),
+                "drop_frac_B": drop_frac_b,
+                "drop_avgadmittedskill": drop_avg_skill,
+            }
+        )
+    return rows
+
+
+def run_simulations(args: argparse.Namespace) -> pd.DataFrame:
     b1_vars = parse_float_list(args.b1_vars)
-    costs = cost_grid(args)
+    costs = [float(cost_b) for cost_b in cost_grid(args)]
+    tasks = [(args, b1_index, b1_var, run, costs) for b1_index, b1_var in enumerate(b1_vars) for run in range(args.num_runs)]
+    workers = max(1, int(args.workers))
+    if workers == 1:
+        nested_rows = [run_drop_test_task(task) for task in tasks]
+    else:
+        nested_rows = []
+        with ProcessPoolExecutor(max_workers=workers) as executor:
+            futures = [executor.submit(run_drop_test_task, task) for task in tasks]
+            for future in as_completed(futures):
+                nested_rows.append(future.result())
 
-    for b1_index, b1_var in enumerate(b1_vars):
-        for run in range(args.num_runs):
-            drop_seed = args.base_seed + b1_index * 100000 + run * 1000
-            random.seed(drop_seed)
-            np.random.seed(drop_seed)
-            _, drop_schools_df, _ = pipeline.pipeline(drop_test_parameters(args, b1_var))
-            drop_frac_b = school_metric(drop_schools_df, "frac_B")
-            drop_avg_skill = school_metric(drop_schools_df, "avgadmittedskill")
-
-            for cost_index, cost_b in enumerate(costs):
-                seed = drop_seed + cost_index + 1
-                random.seed(seed)
-                np.random.seed(seed)
-                _, schools_df, _ = pipeline.pipeline(base_parameters(args, b1_var, float(cost_b)))
-                rows.append(
-                    {
-                        "b1_var": float(b1_var),
-                        "cost_b": float(cost_b),
-                        "run": run,
-                        "frac_B": school_metric(schools_df, "frac_B"),
-                        "avgadmittedskill": school_metric(schools_df, "avgadmittedskill"),
-                        "drop_frac_B": drop_frac_b,
-                        "drop_avgadmittedskill": drop_avg_skill,
-                    }
-                )
-
-    df = pd.DataFrame(rows)
+    rows = [row for task_rows in nested_rows for row in task_rows]
+    df = pd.DataFrame(rows).sort_values(["b1_var", "run", "cost_b"]).reset_index(drop=True)
     args.cache_root.mkdir(parents=True, exist_ok=True)
     df.to_csv(args.cache_root / METRICS_FILE, index=False)
     return df
